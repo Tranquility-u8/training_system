@@ -1233,6 +1233,7 @@ MonoBehaviour:
   effector: {fileID: 1039232718}
   goal: {fileID: 1746996302}
   m_GoalHeight: 1.2
+  IsHeuristic: 1
 --- !u!114 &1911111500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1250,14 +1251,14 @@ MonoBehaviour:
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 6
-      BranchSizes: 01000000
+      BranchSizes: 00000000
     VectorActionSize: 
     VectorActionDescriptions: []
-    VectorActionSpaceType: 0
+    VectorActionSpaceType: 1
     hasUpgradedBrainParametersWithActionSpec: 1
-  m_Model: {fileID: 0}
+  m_Model: {fileID: 5022602860645237092, guid: fce7ba7bd7c0ab24da74c76c18c9bf08, type: 3}
   m_InferenceDevice: 0
-  m_BehaviorType: 0
+  m_BehaviorType: 2
   m_BehaviorName: RobotReacher
   TeamId: 0
   m_UseChildSensors: 1

@@ -31,6 +31,8 @@ public class ReacherRobot : Agent
     float m_GoalOmega;
     float m_GoalDeviation;
     float m_GoalDeviationFreq;
+
+    public bool IsHeuristic = false;
     
     public override void Initialize()
     {
@@ -153,6 +155,8 @@ public class ReacherRobot : Agent
     
     void updateGoalPosition()
     {
+        if(IsHeuristic) return;
+        
         m_GoalDegree += m_GoalOmega;
         
         var m_GoalDegree_rad = m_GoalDegree * Mathf.PI / 180f;
