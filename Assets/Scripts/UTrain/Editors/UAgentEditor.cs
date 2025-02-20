@@ -48,7 +48,7 @@ public class UAgentEditor : Editor
         
         foreach (var joint in _agent.joints)
         {
-            var config = new UJointConfig()
+            var config = new UJointLinkConfig()
             {
                 mass = joint.rb.mass, //TODO
             };

@@ -31,7 +31,9 @@ public class ReacherGoal : MonoBehaviour
     {
         if (other.gameObject == effector)
         {
-            agent.GetComponent<Agent>().AddReward(0.01f);
+            agent.GetComponent<Agent>().SetReward(1f);
+            Debug.Log("End Episode: Success");
+            agent.GetComponent<Agent>().EndEpisode();
         }
     }
 }

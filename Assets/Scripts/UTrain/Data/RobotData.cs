@@ -5,7 +5,7 @@ using System.Collections.Generic;
 [CreateAssetMenu(menuName = "Robot/Configuration")]
 public class RobotData : ScriptableObject
 {
-    public List<UJointConfig> jointConfigs;
+    public List<UJointLinkConfig> jointConfigs;
     
     public float globalMassScale = 1.0f;
     public Vector3 gravity = new Vector3(0, -9.81f, 0);

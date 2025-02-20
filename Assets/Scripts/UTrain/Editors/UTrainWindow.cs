@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,28 +7,38 @@ using UnityEditor;
 using UnityEngine;
 using System.IO;
 using System.Text;
+using Unity.MLAgents.Policies;
 using Unity.VisualScripting;
 using Debug = UnityEngine.Debug;
 
 public class UTrainWindow : EditorWindow
 {
+    private string selectedBehaviorName;  
+    
+    [Header("Physics Engine Settings")]
+    private string engineType = "PhysX";
+    private readonly string[] engineOptions = { "PhysX", "MuJoCo", "Damps" };
+    
     [Header("Trainer Settings")]
     private string trainerType = "ppo";
     private readonly string[] trainerOptions = { "ppo", "sac", "ddpg" };
     private int keepCheckpoints = 5;
-    private int maxSteps = 20000000;
+    private int checkpointInterval = 100000;
+    private int maxSteps = 10000000;
     private int timeHorizon = 1000;
     private int summaryFreq = 60000;
     
     [Header("Hyper Parameters")]
     private int batchSize = 512;
+    private int bufferSize = 20480;
     private float learningRate = 0.0003f;
+    private float beta = 0.001f;
+    private float epsilon = 0.2f;
     
     [Header("Network Settings")]
     private int hiddenUnits = 128;
     private int numLayers = 2;
     
-    private string configPath = "Train/test.yaml";
 
     [Header("Reward Signals")]
     private float gamma = 0.995f;
@@ -36,11 +47,12 @@ public class UTrainWindow : EditorWindow
     [MenuItem("Tools/UTrain")]
     public static void ShowWindow()
     {
-        GetWindow<UTrainWindow>("UTrain Editor");
+        GetWindow<UTrainWindow>("UTrain Platform");
     }
 
     void OnGUI()
     {
+        DrawBehaviourSelection();
         DrawModelSection();
         DrawTrainingParamsSection();
         DrawConfigOperations();
@@ -48,9 +60,35 @@ public class UTrainWindow : EditorWindow
         DrawDisplayTensorBoardOperations();
     }
 
+    void DrawBehaviourSelection()
+    {
+        GUILayout.Label("Select a Behavior", EditorStyles.boldLabel);  
+        
+        BehaviorParameters[] behaviors = FindObjectsOfType<BehaviorParameters>();  
+        
+        string[] behaviorNames = new string[behaviors.Length];  
+        for (int i = 0; i < behaviors.Length; i++)  
+        {  
+            behaviorNames[i] = behaviors[i].BehaviorName;  
+        }  
+        
+        if (behaviorNames.Length > 0)  
+        {  
+            int selectedIndex = Mathf.Max(0, System.Array.IndexOf(behaviorNames, selectedBehaviorName));  
+            selectedIndex = EditorGUILayout.Popup("Select Behavior Name", selectedIndex, behaviorNames);  
+            selectedBehaviorName = behaviorNames[selectedIndex];  
+        }  
+        else  
+        {  
+            EditorGUILayout.LabelField("No BehaviorParameters found in the scene.");  
+        }  
+    }
+    
     void DrawModelSection()
     {
+        GUILayout.Space(10);
         GUILayout.Label("Model Configuration", EditorStyles.boldLabel);
+        
         if (GUILayout.Button("Upload Model"))
         {
             string path = EditorUtility.OpenFilePanel("Select Model", "", "fbx");
@@ -64,13 +102,21 @@ public class UTrainWindow : EditorWindow
     void DrawTrainingParamsSection()
     {
         GUILayout.Space(10);
+        GUILayout.Label("Physics Engine Settings", EditorStyles.boldLabel);
+        
+        int selectedEngineType = System.Array.IndexOf(engineOptions,engineType);
+        selectedEngineType = EditorGUILayout.Popup("Physics Engine Type", selectedEngineType, engineOptions);
+        engineType = engineOptions[selectedEngineType];
+        
+        GUILayout.Space(10);
         GUILayout.Label("Trainer Settings", EditorStyles.boldLabel);
         
-        int selectedType = System.Array.IndexOf(trainerOptions, trainerType);
-        selectedType = EditorGUILayout.Popup("Trainer Type", selectedType, trainerOptions);
-        trainerType = trainerOptions[selectedType];
+        int selectedTrainerType = System.Array.IndexOf(trainerOptions, trainerType);
+        selectedTrainerType = EditorGUILayout.Popup("Trainer Type", selectedTrainerType, trainerOptions);
+        trainerType = trainerOptions[selectedTrainerType];
         
         keepCheckpoints = EditorGUILayout.IntField("Keep Checkpoints", keepCheckpoints);
+        checkpointInterval = EditorGUILayout.IntField("Checkpoint Interval", checkpointInterval);
         maxSteps = EditorGUILayout.IntField("Max Steps", maxSteps);
         timeHorizon = EditorGUILayout.IntField("Time Horizon", timeHorizon);
         summaryFreq = EditorGUILayout.IntField("Summary Freq", summaryFreq);
@@ -79,7 +125,10 @@ public class UTrainWindow : EditorWindow
         GUILayout.Label("Hyper Parameters", EditorStyles.boldLabel);
         
         batchSize = EditorGUILayout.IntField("Batch Size", batchSize);
+        bufferSize = EditorGUILayout.IntField("Buffer Size", bufferSize);
         learningRate = EditorGUILayout.FloatField("Learning Rate", learningRate);
+        beta = EditorGUILayout.FloatField("Beta", beta);
+        epsilon = EditorGUILayout.FloatField("Epsilon", epsilon);
         
         GUILayout.Space(10);
         GUILayout.Label("Network Settings", EditorStyles.boldLabel);
@@ -114,19 +163,19 @@ public class UTrainWindow : EditorWindow
 
     void SaveYamlConfig()
     {
-        string fullPath = Path.Combine(Path.GetDirectoryName(Application.dataPath), configPath);
+        string fullPath = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Train/" + selectedBehaviorName + ".yaml");
         Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
         StringBuilder yamlContent = new StringBuilder();
         yamlContent.AppendLine("behaviors:");
-        yamlContent.AppendLine("  RobotReacher:");
+        yamlContent.AppendLine($"  {selectedBehaviorName}:");
         yamlContent.AppendLine($"    trainer_type: {trainerType}");
         yamlContent.AppendLine("    hyperparameters:");
         yamlContent.AppendLine($"      batch_size: {batchSize}");
-        yamlContent.AppendLine("      buffer_size: 20480");
+        yamlContent.AppendLine($"      buffer_size: {bufferSize}");
         yamlContent.AppendLine($"      learning_rate: {learningRate}");
-        yamlContent.AppendLine("      beta: 0.001");
-        yamlContent.AppendLine("      epsilon: 0.2");
+        yamlContent.AppendLine($"      beta: {beta}");
+        yamlContent.AppendLine($"      epsilon: {epsilon}");
         yamlContent.AppendLine("      lambd: 0.95");
         yamlContent.AppendLine("      num_epoch: 3");
         yamlContent.AppendLine("      learning_rate_schedule: linear");
@@ -140,6 +189,7 @@ public class UTrainWindow : EditorWindow
         yamlContent.AppendLine($"        gamma: {gamma}");
         yamlContent.AppendLine($"        strength: {strength}");
         yamlContent.AppendLine($"    keep_checkpoints: {keepCheckpoints}");
+        yamlContent.AppendLine($"    checkpoint_interval: {checkpointInterval}");
         yamlContent.AppendLine($"    max_steps: {maxSteps}");
         yamlContent.AppendLine($"    time_horizon: {timeHorizon}");
         yamlContent.AppendLine($"    summary_freq: {summaryFreq}");
@@ -152,7 +202,7 @@ public class UTrainWindow : EditorWindow
 
     void LoadYamlConfig()
     {
-        string fullPath = Path.Combine(Application.dataPath, configPath);
+        string fullPath = Path.Combine(Application.dataPath, "Train/" + selectedBehaviorName + ".yaml");
         if (!File.Exists(fullPath))
         {
             Debug.LogWarning("Config file not found!");
@@ -213,7 +263,7 @@ public class UTrainWindow : EditorWindow
         {
             Transform child = newParent.transform.GetChild(i);
             child.name = "link" + i;
-            child.AddComponent<ULink>();
+            child.AddComponent<UJointLink>();
         }
         
         // Create Prefab  
@@ -243,7 +293,7 @@ public class UTrainWindow : EditorWindow
         GUILayout.Label("ML-Agent Backend", EditorStyles.boldLabel);
         if (GUILayout.Button("Run Backend"))  
         {  
-            RunBatchFile("train");  
+            RunTrainBatch(selectedBehaviorName);  
         }  
     }
     
@@ -253,7 +303,7 @@ public class UTrainWindow : EditorWindow
         GUILayout.Label("TensorBoard", EditorStyles.boldLabel);
         if (GUILayout.Button("Run TensorBoard"))  
         {  
-            RunBatchFile("display");
+            RunBatchByName("display");
             Application.OpenURL("http://localhost:6006");
         } 
     }
@@ -264,7 +314,7 @@ public class UTrainWindow : EditorWindow
         Application.OpenURL(url);  
     }  
     
-    private void RunBatchFile(string name)  
+    private void RunBatchByName(string name)  
     {  
         string batFilePath = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Train/" + name + ".bat");;
 
@@ -287,6 +337,70 @@ public class UTrainWindow : EditorWindow
         }  
     }
 
+    private void RunDisplayBatch()  
+    {  
+        string batFilePath = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Train/display.bat");;  
+
+        string batContent = $@"  
+@echo off  
+call conda activate ml
+cd D:\Unity\Project\training_system\Train  
+tensorboard --logdir results --port 6006
+pause
+";  
+        File.WriteAllText(batFilePath, batContent);  
+    
+        ProcessStartInfo startInfo = new ProcessStartInfo  
+        {  
+            FileName = batFilePath,  
+            UseShellExecute = true,  
+            RedirectStandardOutput = false,  
+            CreateNoWindow = false  
+        };  
+
+        try  
+        {  
+            Process process = Process.Start(startInfo);  
+            // process.WaitForExit();  
+        }  
+        catch (System.Exception ex)  
+        {  
+            UnityEngine.Debug.LogError("Failed to run batch file: " + ex.Message);  
+        }  
+    }
+    
+    private void RunTrainBatch(string runId)  
+    {  
+        string batFilePath = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Train/train.bat");;  
+        
+        string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+        string batContent = $@"  
+@echo off  
+call conda activate ml  
+cd D:\Unity\Project\training_system\Train  
+mlagents-learn {runId}.yaml --run-id {runId + "_" + timeStamp} --torch-device cuda:0  
+pause  
+";  
+        File.WriteAllText(batFilePath, batContent);  
+    
+        ProcessStartInfo startInfo = new ProcessStartInfo  
+        {  
+            FileName = batFilePath,  
+            UseShellExecute = true,  
+            RedirectStandardOutput = false,  
+            CreateNoWindow = false  
+        };  
+
+        try  
+        {  
+            Process process = Process.Start(startInfo);  
+            // process.WaitForExit();  
+        }  
+        catch (System.Exception ex)  
+        {  
+            UnityEngine.Debug.LogError("Failed to run batch file: " + ex.Message);  
+        }  
+    }
 
 }
 #endif

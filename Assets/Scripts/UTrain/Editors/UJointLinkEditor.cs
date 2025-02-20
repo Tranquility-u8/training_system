@@ -8,7 +8,7 @@ public class UJointLinkEditor : Editor
     {  
         base.OnInspectorGUI();  
 
-        ULink uLink = (ULink)target;  
+        UJointLink uLink = (UJointLink)target;  
 
         // 检查是否有collider  
         if (uLink.GetComponents<Collider>().Length == 0)  

@@ -108,6 +108,19 @@ public class UAgent : Agent
         }
         
         UpdateGoalPosition();
+        
+        // TODO
+        float dis = Vector3.Distance(goal.transform.position, effector.transform.position);
+        if (dis < 0.5f)
+        {
+            //SetReward(0.1f);
+        }
+        else if(dis > 2.5f)
+        {
+            SetReward(-0.2f);
+            Debug.Log("End Episode: Out of Range");
+            EndEpisode();
+        }
     }
 
     void UpdateGoalPosition()

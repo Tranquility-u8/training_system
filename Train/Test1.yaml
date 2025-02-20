@@ -1,5 +1,5 @@
 behaviors:
-  RobotReacher:
+  Test1:
     trainer_type: ppo
     hyperparameters:
       batch_size: 512
@@ -20,6 +20,7 @@ behaviors:
         gamma: 0.995
         strength: 1
     keep_checkpoints: 5
-    max_steps: 20000000
+    checkpoint_interval: 100000
+    max_steps: 5000000
     time_horizon: 1000
-    summary_freq: 60000
+    summary_freq: 1000
