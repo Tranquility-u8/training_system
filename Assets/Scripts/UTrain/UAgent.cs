@@ -118,7 +118,7 @@ public class UAgent : Agent
         else if(dis > 2.5f)
         {
             SetReward(-0.2f);
-            Debug.Log("End Episode: Out of Range");
+            //Debug.Log("End Episode: Out of Range");
             EndEpisode();
         }
     }
@@ -135,6 +135,6 @@ public class UAgent : Agent
             goalRadius * Mathf.Sin(rad)
         );
         
-        goal.transform.position = pos;
+        goal.transform.position = this.transform.position + pos;
     }
 }

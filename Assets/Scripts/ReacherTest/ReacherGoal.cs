@@ -32,7 +32,7 @@ public class ReacherGoal : MonoBehaviour
         if (other.gameObject == effector)
         {
             agent.GetComponent<Agent>().SetReward(1f);
-            Debug.Log("End Episode: Success");
+            //Debug.Log("End Episode: Success");
             agent.GetComponent<Agent>().EndEpisode();
         }
     }
