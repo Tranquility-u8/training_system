@@ -1,8 +1,8 @@
 using UnityEngine;  
 using UnityEditor;  
 
-[CustomEditor(typeof(ULink))]  
-public class ULinkEditor : Editor  
+[CustomEditor(typeof(UJointLink))]  
+public class UJointLinkEditor : Editor  
 {  
     public override void OnInspectorGUI()  
     {  
@@ -13,7 +13,7 @@ public class ULinkEditor : Editor
         // 检查是否有collider  
         if (uLink.GetComponents<Collider>().Length == 0)  
         {  
-            EditorGUILayout.HelpBox("ULink requires at least one collider!", MessageType.Warning);  
+            EditorGUILayout.HelpBox("UJointLink requires at least one collider!", MessageType.Warning);  
         }  
     }  
 }

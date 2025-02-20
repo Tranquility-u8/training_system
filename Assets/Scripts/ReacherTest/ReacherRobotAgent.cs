@@ -33,6 +33,8 @@ public class ReacherRobot : Agent
     float m_GoalDeviationFreq;
 
     public bool IsHeuristic = false;
+
+    public bool UseUnityPhysX = true;
     
     public override void Initialize()
     {

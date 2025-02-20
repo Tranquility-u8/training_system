@@ -206,7 +206,7 @@ public class UTrainWindow : EditorWindow
             prefabInstance.transform.SetParent(newParent.transform);  
         }  
         
-        URobot robot = newParent.AddComponent<URobot>();  
+        UAgent agent = newParent.AddComponent<UAgent>();  
         
         ProcessChildren(prefabInstance.transform, newParent.transform);
         for (int i = 0; i < newParent.transform.childCount; i++)
