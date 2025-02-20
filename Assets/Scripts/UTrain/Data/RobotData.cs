@@ -7,7 +7,6 @@ public class RobotData : ScriptableObject
 {
     public List<UJointConfig> jointConfigs;
     
-    // 物理参数通用化字段
     public float globalMassScale = 1.0f;
     public Vector3 gravity = new Vector3(0, -9.81f, 0);
     public float defaultFriction = 0.5f;

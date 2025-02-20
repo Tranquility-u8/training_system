@@ -21,5 +21,4 @@ public class UJointConfig
     public float mass;
     public Vector3 colliderSize;
     public JointDrive angularXDrive;
-    // 其他必要参数...
 }
