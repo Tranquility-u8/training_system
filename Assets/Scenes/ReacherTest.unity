@@ -363,6 +363,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: TrainingArea (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5669910036625544798, guid: 29566862a70d1954f85a363b3c87a82d,
+        type: 3}
+      propertyPath: m_BehaviorName
+      value: Test1
+      objectReference: {fileID: 0}
     - target: {fileID: 9185414240125461835, guid: 29566862a70d1954f85a363b3c87a82d,
         type: 3}
       propertyPath: m_LocalPosition.x

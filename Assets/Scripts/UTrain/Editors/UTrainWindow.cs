@@ -13,6 +13,8 @@ using Debug = UnityEngine.Debug;
 
 public class UTrainWindow : EditorWindow
 {
+    private Vector2 scrollPos;  
+    
     private string selectedBehaviorName;  
     
     [Header("Physics Engine Settings")]
@@ -52,12 +54,16 @@ public class UTrainWindow : EditorWindow
 
     void OnGUI()
     {
-        DrawBehaviourSelection();
+        scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
+        
         DrawModelSection();
+        DrawBehaviourSelection();
         DrawTrainingParamsSection();
         DrawConfigOperations();
         DrawRunBackendOperations();
         DrawDisplayTensorBoardOperations();
+        
+        EditorGUILayout.EndScrollView();  
     }
 
     void DrawBehaviourSelection()
