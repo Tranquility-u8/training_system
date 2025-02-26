@@ -209,13 +209,6 @@
       },
       "url": "https://packages.unity.cn"
     },
-    "org.mujoco": {
-      "version": "https://github.com/google-deepmind/mujoco.git?path=unity#3.2.4",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {},
-      "hash": "c2024ef6d1f7658698165abf212c9cd5b78f28df"
-    },
     "com.unity.modules.ai": {
       "version": "1.0.0",
       "depth": 0,
