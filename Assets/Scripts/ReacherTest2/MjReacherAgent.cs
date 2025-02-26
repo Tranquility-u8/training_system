@@ -23,7 +23,12 @@ public class MjReacherAgent : Agent
     [SerializeField]
     MjHingeJoint hinge45;
     
-
+    [SerializeField]
+    public GameObject effector;
+    
+    [SerializeField]
+    public GameObject goal;
+    
     // Start is called before the first frame update
     void Start() {
     }
@@ -79,5 +84,21 @@ public class MjReacherAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actions) {
         // You could process your agent's actions directly here, and assign reward as well
+        base.OnActionReceived(actions);
+        
+        // TODO
+        float dis = Vector3.Distance(goal.transform.position, effector.transform.position);
+        if (dis < 0.5f)
+        {
+            SetReward(1.0f);
+            //Debug.Log("End Episode: Success");
+            EndEpisode();
+        }
+        else if(dis > 3.0f)
+        {
+            SetReward(-0.2f);
+            //Debug.Log("End Episode: Out of Range");
+            EndEpisode();
+        }
     }
 }
