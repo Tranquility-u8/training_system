@@ -463,7 +463,7 @@ pause
             }
             else
             {
-                if(!hj)
+                if(hj)
                     DestroyImmediate(hj);
             }
 
@@ -482,17 +482,18 @@ pause
                     rb = obj.AddComponent<Rigidbody>();
                 }
                 rb.useGravity = false;
-                rb.isKinematic = true;
+                rb.isKinematic = false;
                 
                 if (!cld)
                 {
                     cld = obj.AddComponent<MeshCollider>();
+                    cld.convex = true;
                 }
                 
             } else{
-                if(!cld)
+                if(cld)
                     DestroyImmediate(cld);
-                if(!rb)
+                if(rb)
                     DestroyImmediate(rb);
             }
         }
