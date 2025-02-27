@@ -61,18 +61,24 @@ public class ReacherUAgent : UAgent
         base.CollectObservations(sensor);
         
         // TEST
-        sensor.AddObservation(hinge01.transform.localPosition);
-        sensor.AddObservation(hinge01.transform.rotation);
+        if (UTrainWindow.IsPhysX)
+        {
+            sensor.AddObservation(hinge01.transform.localPosition);
+            sensor.AddObservation(hinge01.transform.rotation);
+        }
     }
 
     public override void OnActionReceived(ActionBuffers actions) {
         base.OnActionReceived(actions);
         
         // TEST
-        var vectorAction = actions.ContinuousActions;
-        var torque = Mathf.Clamp(vectorAction[0], -1f, 1f) * 150f;
+        if (UTrainWindow.IsPhysX)
+        {
+            var vectorAction = actions.ContinuousActions;
+            var torque = Mathf.Clamp(vectorAction[0], -1f, 1f) * 150f;
         
-        j1.GetComponent<Rigidbody>().AddTorque(new Vector3(0f, torque, 0f));
+            j1.GetComponent<Rigidbody>().AddTorque(new Vector3(0f, torque, 0f));
+        }
         
         // TEST
         float dis = Vector3.Distance(goal.transform.position, effector.transform.position);

@@ -24,8 +24,12 @@ public class UTrainWindow : EditorWindow
     public static bool IsMuJoCo => engineType == "MuJoCo";
     public static MjGlobalSettings mjGlobalSetting;
     
+    public static string engineType 
+    {
+        get => EditorPrefs.GetString("EngineType", "PhysX"); // 默认值
+        set => EditorPrefs.SetString("EngineType", value);
+    }
     [Header("Physics Engine Settings")]
-    public static string engineType = "PhysX";
     private readonly string[] engineOptions = { "PhysX", "MuJoCo", "Damps" };
     
     [Header("Trainer Settings")]
