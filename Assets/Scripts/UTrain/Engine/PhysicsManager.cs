@@ -42,7 +42,7 @@ public class PhysicsManager : MonoBehaviour {
     private void UpdateSceneComponents() {
         var isPhysX = ActiveEngine is PhysXPhysicsEngine;
         
-        HandleRigidbodyComponents(isPhysX);
+        HandleRbAndColliderComponents(isPhysX);
         HandleJointComponents(isPhysX);
     }
 
@@ -51,7 +51,7 @@ public class PhysicsManager : MonoBehaviour {
         ActiveEngine?.StepSimulation();
     }
     
-    void HandleRigidbodyComponents(bool isPhysX) {
+    void HandleRbAndColliderComponents(bool isPhysX) {
         var geoms = FindObjectsOfType<MjGeom>();
         foreach (var geom in geoms) {
             var rb = geom.GetComponent<Rigidbody>();
@@ -61,6 +61,13 @@ public class PhysicsManager : MonoBehaviour {
                 rb.isKinematic = true;
             } else if (!isPhysX && rb) {
                 Destroy(rb);
+            }
+            
+            var cld = geom.GetComponent<MeshCollider>();
+            if (isPhysX && !cld) {
+                cld = geom.gameObject.AddComponent<MeshCollider>();
+            } else if (!isPhysX && cld) {
+                Destroy(cld);
             }
         }
     }

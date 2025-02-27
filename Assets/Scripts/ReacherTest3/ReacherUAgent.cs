@@ -13,7 +13,6 @@ public class ReacherUAgent : UAgent
     [SerializeField]
     MjHingeJoint hinge12;
     
-    
     [SerializeField]
     MjHingeJoint hinge23;
 
@@ -28,45 +27,54 @@ public class ReacherUAgent : UAgent
     
     [SerializeField]
     public GameObject goal;
-    
+
+    [SerializeField]
+    public GameObject j1;
     public unsafe override void OnEpisodeBegin() {
         base.OnEpisodeBegin();
         
         var data = MjScene.Instance.Data;
-        
-        data->qpos[hinge01.QposAddress] = 0;
-        data->qpos[hinge12.QposAddress] = 0;
-        
-        data->qpos[hinge23.QposAddress] = 0;
-        data->qpos[hinge34.QposAddress] = 0;
-        data->qpos[hinge45.QposAddress] = 0;
 
+        if (UTrainWindow.IsMuJoCo)
+        {
+            data->qpos[hinge01.QposAddress] = 0;
+            data->qpos[hinge12.QposAddress] = 0;
+            data->qpos[hinge23.QposAddress] = 0;
+            data->qpos[hinge34.QposAddress] = 0;
+            data->qpos[hinge45.QposAddress] = 0;
         
-        data->qvel[hinge01.DofAddress] = 0;
-        data->qvel[hinge12.DofAddress] = 0;
-        
-        data->qvel[hinge23.DofAddress] = 0;
-        data->qvel[hinge34.DofAddress] = 0;
-        data->qvel[hinge45.DofAddress] = 0;
-        
-        
-        data->qacc[hinge01.DofAddress] = 0;
-        data->qacc[hinge12.DofAddress] = 0;
-        data->qacc[hinge23.DofAddress] = 0;
-        data->qacc[hinge34.DofAddress] = 0;
-        data->qacc[hinge45.DofAddress] = 0;
-        
+            data->qvel[hinge01.DofAddress] = 0;
+            data->qvel[hinge12.DofAddress] = 0;
+            data->qvel[hinge23.DofAddress] = 0;
+            data->qvel[hinge34.DofAddress] = 0;
+            data->qvel[hinge45.DofAddress] = 0;
+            
+            data->qacc[hinge01.DofAddress] = 0;
+            data->qacc[hinge12.DofAddress] = 0;
+            data->qacc[hinge23.DofAddress] = 0;
+            data->qacc[hinge34.DofAddress] = 0;
+            data->qacc[hinge45.DofAddress] = 0;
+        }
     }
 
     public override void CollectObservations(VectorSensor sensor) {
         base.CollectObservations(sensor);
+        
+        // TEST
+        sensor.AddObservation(hinge01.transform.localPosition);
+        sensor.AddObservation(hinge01.transform.rotation);
     }
 
     public override void OnActionReceived(ActionBuffers actions) {
-        // You could process your agent's actions directly here, and assign reward as well
         base.OnActionReceived(actions);
         
-        // TODO
+        // TEST
+        var vectorAction = actions.ContinuousActions;
+        var torque = Mathf.Clamp(vectorAction[0], -1f, 1f) * 150f;
+        
+        j1.GetComponent<Rigidbody>().AddTorque(new Vector3(0f, torque, 0f));
+        
+        // TEST
         float dis = Vector3.Distance(goal.transform.position, effector.transform.position);
         if (dis < 0.5f)
         {

@@ -9,8 +9,7 @@ public class UJointLinkEditor : Editor
         base.OnInspectorGUI();  
 
         UJointLink uLink = (UJointLink)target;  
-
-        // 检查是否有collider  
+        
         if (uLink.GetComponents<Collider>().Length == 0)  
         {  
             EditorGUILayout.HelpBox("UJointLink requires at least one collider!", MessageType.Warning);  

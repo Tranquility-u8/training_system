@@ -21,7 +21,8 @@ namespace Mujoco {
   public class MjHingeJoint : MjBaseJoint
   {
 
-    [SerializeField] public MjGeom Child;
+    [SerializeField] public GameObject Parent;
+    [SerializeField] public GameObject Child;
     
     [Tooltip("In degrees.")]
     public float RangeLower;

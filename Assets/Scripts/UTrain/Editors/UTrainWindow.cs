@@ -427,47 +427,94 @@ pause
     private void UpdateSceneComponents()
     {
         bool isPhysX = IsPhysX;
-        HandleJointComponents(isPhysX);
-        HandleRigidbodyComponents(isPhysX);
         HandleMjComponents(isPhysX);
+        if (isPhysX)
+        {
+            HandleBodyComponents(isPhysX);
+            HandleJointComponents(isPhysX);
+        }
+        else
+        {
+            HandleJointComponents(isPhysX);
+            HandleBodyComponents(isPhysX);
+        }
+
+        LateHandleJointComponents(isPhysX);
     }
     
-    void HandleJointComponents(bool isPhysX) {
-        var joints = FindObjectsOfType<MjHingeJoint>();
-        foreach (var joint in joints) {
-            var cj = joint.Child.GetComponent<ConfigurableJoint>();
-            if (isPhysX && !cj)
+    void HandleJointComponents(bool isPhysX)
+    {
+        var mjjs = FindObjectsOfType<MjHingeJoint>();
+        foreach (var mjj in mjjs)
+        {
+            var parent = mjj.Parent;
+            var child = mjj.Child;
+            var hj = child.GetComponent<HingeJoint>();
+
+            if (isPhysX)
             {
-                cj = joint.Child.AddComponent<ConfigurableJoint>();
-                cj.xMotion = ConfigurableJointMotion.Locked;
-                cj.yMotion = ConfigurableJointMotion.Locked;
-                cj.zMotion = ConfigurableJointMotion.Locked;
-                cj.angularXMotion = ConfigurableJointMotion.Locked;
-                cj.angularZMotion = ConfigurableJointMotion.Locked;
-            } else if (!isPhysX && cj) {
-                DestroyImmediate(cj);
+                if (!hj)
+                {
+                    hj = child.AddComponent<HingeJoint>();
+                }
+                Vector3 worldAxis = mjj.transform.right;
+                hj.axis = VectorUtils.RoundTinyToZero(child.transform.InverseTransformDirection(worldAxis).normalized);
+                hj.anchor = VectorUtils.RoundTinyToZero(child.transform.InverseTransformPoint(mjj.transform.position)); 
             }
+            else
+            {
+                if(!hj)
+                    DestroyImmediate(hj);
+            }
+
         }
     }
-    
-    void HandleRigidbodyComponents(bool isPhysX) {
-        var geoms = FindObjectsOfType<MjGeom>();
-        foreach (var geom in geoms) {
-            var rb = geom.GetComponent<Rigidbody>();
-            if (isPhysX && !rb) {
-                rb = geom.gameObject.AddComponent<Rigidbody>();
+
+    void HandleBodyComponents(bool isPhysX) {
+        var objs = FindObjectsOfType<MjMeshFilter>();
+        foreach (var obj in objs) {
+            var rb = obj.GetComponent<Rigidbody>();
+            var cld = obj.GetComponent<MeshCollider>();
+            if (isPhysX)
+            {
+                if (!rb)
+                {
+                    rb = obj.AddComponent<Rigidbody>();
+                }
                 rb.useGravity = false;
                 rb.isKinematic = true;
-            } else if (!isPhysX && rb) {
-                DestroyImmediate(rb);
+                
+                if (!cld)
+                {
+                    cld = obj.AddComponent<MeshCollider>();
+                }
+                
+            } else{
+                if(!cld)
+                    DestroyImmediate(cld);
+                if(!rb)
+                    DestroyImmediate(rb);
             }
         }
     }
 
+    void LateHandleJointComponents(bool isPhysX)
+    {
+        if(!isPhysX) return;
+        
+        var mjJoints = FindObjectsOfType<MjHingeJoint>();
+        foreach (var mjj in mjJoints) {
+            var hj = mjj.Child.GetComponent<HingeJoint>();
+            GameObject parent = mjj.Parent.gameObject;
+            hj.connectedBody = parent.GetComponent<Rigidbody>();
+        } 
+    }
+        
     void HandleMjComponents(bool isPhysX)
     {
         SetAllMjComponentsEnabled(!isPhysX);
     }
+    
     static void SetAllMjComponentsEnabled(bool enabled)
     {
         System.Type mjType = typeof(MjComponent);
