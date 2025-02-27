@@ -66,7 +66,7 @@ public class UJointLink : MonoBehaviour
         {
             Vector3 torque = actionSettings.torqueAxis * (actionValue * actionSettings.maxTorque);
 
-            _physicsEngine.ApplyTorque(rb, torque);
+            //_physicsEngine.ApplyTorque(rb, torque);
         }
     }
 }

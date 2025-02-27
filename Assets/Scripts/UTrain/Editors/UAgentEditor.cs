@@ -1,8 +1,11 @@
 // UAgentEditor.cs
+/*
+
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
+
 
 [CustomEditor(typeof(UAgent))]
 public class UAgentEditor : Editor
@@ -67,3 +70,5 @@ public class UAgentEditor : Editor
     }
 }
 #endif
+
+*/

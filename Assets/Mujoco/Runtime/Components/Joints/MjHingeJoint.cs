@@ -18,7 +18,11 @@ using UnityEngine;
 
 namespace Mujoco {
 
-  public class MjHingeJoint : MjBaseJoint {
+  public class MjHingeJoint : MjBaseJoint
+  {
+
+    [SerializeField] public MjGeom Child;
+    
     [Tooltip("In degrees.")]
     public float RangeLower;
     [Tooltip("In degrees.")]

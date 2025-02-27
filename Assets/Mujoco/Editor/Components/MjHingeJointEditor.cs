@@ -30,7 +30,7 @@ namespace Mujoco {
     }
 
     protected virtual void OnSceneGUI() {
-      DrawHandles(_joint);
+//      DrawHandles(_joint);
     }
 
     public static void DrawHandles(MjHingeJoint joint) {

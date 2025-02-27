@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using System.IO;
 using System.Text;
+using Mujoco;
 using Unity.MLAgents.Policies;
 using Unity.VisualScripting;
 using Debug = UnityEngine.Debug;
@@ -14,11 +15,17 @@ using Debug = UnityEngine.Debug;
 public class UTrainWindow : EditorWindow
 {
     private Vector2 scrollPos;  
-    
+ 
+    public static bool isRunning = false;
     private string selectedBehaviorName;  
     
+    public IPhysicsEngine ActiveEngine { get; private set; }
+    public static bool IsPhysX => engineType == "PhysX";
+    public static bool IsMuJoCo => engineType == "MuJoCo";
+    public static MjGlobalSettings mjGlobalSetting;
+    
     [Header("Physics Engine Settings")]
-    private string engineType = "PhysX";
+    public static string engineType = "PhysX";
     private readonly string[] engineOptions = { "PhysX", "MuJoCo", "Damps" };
     
     [Header("Trainer Settings")]
@@ -110,11 +117,22 @@ public class UTrainWindow : EditorWindow
         GUILayout.Space(10);
         GUILayout.Label("Physics Engine Settings", EditorStyles.boldLabel);
         
+        EditorGUI.BeginChangeCheck();
         int selectedEngineType = System.Array.IndexOf(engineOptions,engineType);
         selectedEngineType = EditorGUILayout.Popup("Physics Engine Type", selectedEngineType, engineOptions);
         engineType = engineOptions[selectedEngineType];
+
+        var manager = PhysicsManager.instance;
+        if (manager == null)
+        {
+            //Debug.LogWarning("Physics Engine Settings not found.");
+        }
+        if (EditorGUI.EndChangeCheck()) {
+            //Undo.RecordObject(manager, "Change Physics Engine");
+            SetEngine(engineType);
+        }
         
-        GUILayout.Space(10);
+        GUILayout.Space(10); 
         GUILayout.Label("Trainer Settings", EditorStyles.boldLabel);
         
         int selectedTrainerType = System.Array.IndexOf(trainerOptions, trainerType);
@@ -314,12 +332,6 @@ public class UTrainWindow : EditorWindow
         } 
     }
     
-    private IEnumerator OpenURLAfterDelay(string url, float delay)  
-    {  
-        yield return new WaitForSeconds(delay);  
-        Application.OpenURL(url);  
-    }  
-    
     private void RunBatchByName(string name)  
     {  
         string batFilePath = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Train/" + name + ".bat");;
@@ -408,5 +420,84 @@ pause
         }  
     }
 
+    public void SetEngine(string engineName) {
+        UpdateSceneComponents();
+    }
+
+    private void UpdateSceneComponents()
+    {
+        bool isPhysX = IsPhysX;
+        HandleJointComponents(isPhysX);
+        HandleRigidbodyComponents(isPhysX);
+        HandleMjComponents(isPhysX);
+    }
+    
+    void HandleJointComponents(bool isPhysX) {
+        var joints = FindObjectsOfType<MjHingeJoint>();
+        foreach (var joint in joints) {
+            var cj = joint.Child.GetComponent<ConfigurableJoint>();
+            if (isPhysX && !cj)
+            {
+                cj = joint.Child.AddComponent<ConfigurableJoint>();
+                cj.xMotion = ConfigurableJointMotion.Locked;
+                cj.yMotion = ConfigurableJointMotion.Locked;
+                cj.zMotion = ConfigurableJointMotion.Locked;
+                cj.angularXMotion = ConfigurableJointMotion.Locked;
+                cj.angularZMotion = ConfigurableJointMotion.Locked;
+            } else if (!isPhysX && cj) {
+                DestroyImmediate(cj);
+            }
+        }
+    }
+    
+    void HandleRigidbodyComponents(bool isPhysX) {
+        var geoms = FindObjectsOfType<MjGeom>();
+        foreach (var geom in geoms) {
+            var rb = geom.GetComponent<Rigidbody>();
+            if (isPhysX && !rb) {
+                rb = geom.gameObject.AddComponent<Rigidbody>();
+                rb.useGravity = false;
+                rb.isKinematic = true;
+            } else if (!isPhysX && rb) {
+                DestroyImmediate(rb);
+            }
+        }
+    }
+
+    void HandleMjComponents(bool isPhysX)
+    {
+        SetAllMjComponentsEnabled(!isPhysX);
+    }
+    static void SetAllMjComponentsEnabled(bool enabled)
+    {
+        System.Type mjType = typeof(MjComponent);
+        foreach (GameObject go in GetAllSceneObjects())
+        {
+            foreach (MonoBehaviour mb in go.GetComponents<MonoBehaviour>())
+            {
+                if (mb == null) continue; 
+                
+                if (mjType.IsAssignableFrom(mb.GetType()))
+                {
+                    Undo.RecordObject(mb, enabled ? "Enable MjComponent" : "Disable MjComponent");
+                    mb.enabled = enabled;
+                }
+            }
+        }
+    }
+    
+    static IEnumerable<GameObject> GetAllSceneObjects()
+    {
+        var activeScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+        foreach (GameObject root in activeScene.GetRootGameObjects())
+        {
+            foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
+            {
+                yield return child.gameObject;
+            }
+        }
+    }
+
+    
 }
 #endif
