@@ -5,116 +5,133 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.IO;
- 
+using UnityEngine;
+
 public class ServerSocket
 {
+    Socket serverSocket;
+    Socket clientSocket;
+    Thread thread;
+    IPEndPoint clientip;
+    
+    string returnStr;
+    string receiveStr;
+    string sendStr;
  
-    Socket severSocket;//服务器端Socket
-    Socket clientSocket;//客户端
-    Thread thread;//连接线程
-    IPEndPoint clientip;//被连接的ip地址
-    string returnStr;//用于传递消息的字符串
-    string receiveStr;//接收客户端发来的字符串
-    string sendStr;//发送的字符串
- 
-    int recv;//用于表示客户端发送的信息长度
-    byte[] receiveData = new byte[1024];//用于缓存客户端所发送的信息,通过socket传递的信息必须为字节数组
-    byte[] sendData = new byte[1024];//用于缓存客户端所发送的信息,通过socket传递的信息必须为字节数组
- 
- 
-    //程序初始化
+    public bool IsClientConnected 
+    {
+        get 
+        { 
+            return clientSocket != null && 
+                   clientSocket.Connected;
+        }
+    }
+
+    int recv;
+    byte[] receiveData = new byte[1024];
+    byte[] sendData = new byte[1024];
+    
     public void Init()
     {
-        //初始化命令字符串
         returnStr = null;
         receiveStr = null;
- 
-        //获取ip
+        
         string hostName = System.Net.Dns.GetHostName();
         System.Net.IPHostEntry ipEntry = System.Net.Dns.GetHostEntry(hostName);        
-//ip地址列表
         System.Net.IPAddress[] addr = ipEntry.AddressList;
- 
-        //建立服务器端socket
-        IPEndPoint ipep = new IPEndPoint(addr[0], 8000);//本机预使用的IP和端口
-        severSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        severSocket.Bind(ipep);//绑定
-        severSocket.Listen(10);//监听
-        //建立服务器端socket end
- 
-        //新建线程
+        
+        IPEndPoint ipep = new IPEndPoint(addr[0], 8080);
+        serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        serverSocket.Bind(ipep);
+        serverSocket.Listen(10);
+        
         thread = new Thread(new ThreadStart(GoClient));
-       //启动线程
+
         thread.Start();
+        
+        // 在ServerSocket.Init()中添加
+        Debug.Log($"服务器实际绑定地址: {ipep}");
+        Debug.Log($"Socket地址族: {serverSocket.AddressFamily}");
+        Debug.Log($"协议类型: {serverSocket.ProtocolType}");
+        Debug.Log($"Socket是否阻塞: {serverSocket.Blocking}");
+
     }
  
     void GoClient()
     {
-        //客户端连接
         ConnetClient();
-        //用死循环来不断的从客户端获取信息
         while (true)
         {
-                      //每次接收数据之前先清空字符数组
             receiveData = new byte[1024];
             recv = clientSocket.Receive(receiveData);
-            //当信息长度为0，说明客户端连接断开
             if (recv == 0)
             {
-                //等待客户端重新连接
                 ConnetClient();
-                //进入下一次循环
                 continue;
             }
-            //接收到的消息
             receiveStr = Encoding.ASCII.GetString(receiveData, 0, recv);
         }
     }
- 
-    //等待客户端连接
+    
     void ConnetClient()
     {
         if (clientSocket != null)
         {
             clientSocket.Close();
         }
-        //等待连接
-//当有可用的客户端连接尝试时执行，并返回一个新的socket,用于与客户端之间的通信
-        clientSocket = severSocket.Accept();
+        clientSocket = serverSocket.Accept();
     }
- 
-    //向客户端发送信息
-    public void SendClient(string str)
+    
+// 修改后的ServerSocket.SendClient方法
+    public void SendClient(string str) 
     {
-            sendData = new byte[1024];
-            sendData = Encoding.ASCII.GetBytes(str);
-            clientSocket.Send(sendData, sendData.Length, SocketFlags.None);  
+        try 
+        {
+            // 添加三重验证
+            if (clientSocket == null || 
+                !clientSocket.Connected) 
+            {
+                Debug.LogWarning("发送失败：客户端未连接");
+                return;
+            }
+
+            byte[] sendData = Encoding.UTF8.GetBytes(str);
+            clientSocket.Send(sendData, sendData.Length, SocketFlags.None);
+        }
+        catch (SocketException e) 
+        {
+            Debug.LogError($"网络错误: {e.ErrorCode} - {e.Message}");
+            // 发生异常时重置连接
+            SocketQuit();
+        }
+        catch (NullReferenceException e) 
+        {
+            Debug.LogError($"空引用异常: {e.Message}");
+            SocketQuit();
+        }
     }
- 
-    //返回传送命令
+
+    
     public string ReturnStr()
     {
         lock (this)
         {
             returnStr = receiveStr;
+            receiveStr = null;
         }
         return returnStr;
     }
-    //退出整个socket
     public void SocketQuit()
     {
-        //先关闭客户端
         if (clientSocket != null)
         {
             clientSocket.Close();
         }
-        //再关闭线程
         if (thread != null)
         {
             thread.Interrupt();
             thread.Abort();
         }
-        //最后关闭服务端socket
-        severSocket.Close();
+        serverSocket.Close();
     }
 }
