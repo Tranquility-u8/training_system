@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,22 +6,24 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using Mujoco;
+using Unity.MLAgents.Policies;
+
 public class ReacherUTAgent : UTAgent
 {
     [SerializeField]
-    MjHingeJoint hinge01;
+    UTHingeJoint hinge01;
     
     [SerializeField]
-    MjHingeJoint hinge12;
+    UTHingeJoint hinge12;
     
     [SerializeField]
-    MjHingeJoint hinge23;
+    UTHingeJoint hinge23;
 
     [SerializeField]
-    MjHingeJoint hinge34;
+    UTHingeJoint hinge34;
 
     [SerializeField]
-    MjHingeJoint hinge45;
+    UTHingeJoint hinge45;
     
     [SerializeField]
     public GameObject effector;
@@ -30,11 +33,38 @@ public class ReacherUTAgent : UTAgent
 
     [SerializeField]
     public GameObject j1;
+
+    private void Awake()
+    {
+        if (UTrainWindow.IsMuJoCo)
+        {
+            this.GetComponent<BehaviorParameters>().BrainParameters.VectorObservationSize = 0;
+        }
+    }
+
     public unsafe override void OnEpisodeBegin() {
         base.OnEpisodeBegin();
         
-        var data = MjScene.Instance.getData();
+        UTData data = MjScene.Instance.getUTData();
 
+        data.setJointPos(hinge01, 0);
+        data.setJointPos(hinge12, 0);
+        data.setJointPos(hinge23, 0);
+        data.setJointPos(hinge34, 0);
+        data.setJointPos(hinge45, 0);
+        
+        data.setJointVel(hinge01, 0);
+        data.setJointVel(hinge12, 0);
+        data.setJointVel(hinge23, 0);
+        data.setJointVel(hinge34, 0);
+        data.setJointVel(hinge45, 0);
+        
+        data.setJointAcc(hinge01, 0);
+        data.setJointAcc(hinge12, 0);
+        data.setJointAcc(hinge23, 0);
+        data.setJointAcc(hinge34, 0);
+        data.setJointAcc(hinge45, 0);
+        /*
         if (UTrainWindow.IsMuJoCo)
         {
             data->qpos[hinge01.QposAddress] = 0;
@@ -42,19 +72,22 @@ public class ReacherUTAgent : UTAgent
             data->qpos[hinge23.QposAddress] = 0;
             data->qpos[hinge34.QposAddress] = 0;
             data->qpos[hinge45.QposAddress] = 0;
-        
+
             data->qvel[hinge01.DofAddress] = 0;
             data->qvel[hinge12.DofAddress] = 0;
             data->qvel[hinge23.DofAddress] = 0;
             data->qvel[hinge34.DofAddress] = 0;
             data->qvel[hinge45.DofAddress] = 0;
-            
+
             data->qacc[hinge01.DofAddress] = 0;
             data->qacc[hinge12.DofAddress] = 0;
             data->qacc[hinge23.DofAddress] = 0;
             data->qacc[hinge34.DofAddress] = 0;
-            data->qacc[hinge45.DofAddress] = 0;
+            data->qacc[hinge45.DofAddress] = 0; 
         }
+        */
+        
+        
     }
 
     public override void CollectObservations(VectorSensor sensor) {

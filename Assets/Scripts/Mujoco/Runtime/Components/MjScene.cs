@@ -36,9 +36,10 @@ public class MjScene : MonoBehaviour {
   public unsafe MujocoLib.mjModel_* Model = null;
   public unsafe MujocoLib.mjData_* Data = null;
 
-  public unsafe MujocoLib.mjData_* getData()
+  public unsafe UTData getUTData()
   {
-    return Data;
+    UTData utData = new UTData(Data);
+    return utData;
   }
   
   // Public and global access to the active MjSceneGenerationContext.

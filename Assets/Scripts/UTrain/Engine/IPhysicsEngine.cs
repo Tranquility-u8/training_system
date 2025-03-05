@@ -4,7 +4,7 @@ using System.Xml;
 using Mujoco;
 using UnityEngine;
 
-public enum PhysicsEngineType { PhysX, MuJoCo, Others }
+public enum PhysicsEngineType { None, PhysX, MuJoCo, Damps, Others }
 
 public interface IPhysicsEngine {
     void InitializeScene();
