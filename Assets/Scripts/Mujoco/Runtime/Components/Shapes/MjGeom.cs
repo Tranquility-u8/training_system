@@ -26,7 +26,7 @@ public class MjGeom : MjShapeComponent {
 
   [Tooltip("Material density. Set to 0 for a zero-mass geom.")]
   public float Density = 1000.0f;
-
+  
   [Tooltip("Advanced settings.")]
   public MjGeomSettings Settings = MjGeomSettings.Default;
 

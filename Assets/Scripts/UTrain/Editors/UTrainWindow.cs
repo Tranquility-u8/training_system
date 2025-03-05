@@ -26,7 +26,7 @@ public class UTrainWindow : EditorWindow
     
     public static string engineType 
     {
-        get => EditorPrefs.GetString("EngineType", "PhysX"); // 默认值
+        get => EditorPrefs.GetString("EngineType", "PhysX"); 
         set => EditorPrefs.SetString("EngineType", value);
     }
     
@@ -487,7 +487,7 @@ pause
                     rb = obj.AddComponent<Rigidbody>();
                 }
                 rb.useGravity = false;
-                rb.isKinematic = false;
+                rb.isKinematic = obj.GetComponent<MjGeom>().Settings.IsKinematic;
                 
                 if (!cld)
                 {

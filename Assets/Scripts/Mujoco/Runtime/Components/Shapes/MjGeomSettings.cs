@@ -27,6 +27,8 @@ public struct MjGeomSettings {
     Ellipsoid,
   }
 
+  public bool IsKinematic;
+  
   [Tooltip("Priority")]
   public int Priority;
 
