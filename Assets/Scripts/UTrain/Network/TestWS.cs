@@ -1,39 +1,55 @@
-using UnityEngine;  
+using UnityEngine;
+using System.Collections;
 
-public class TestWS : MonoBehaviour   
-{  
-    ServerSocket ssock;  
-    string str = null;  
+public class TestWS : MonoBehaviour
+{
+    ServerSocket ssock;
+    public GameObject obj;
+    
+    void Start()
+    {
+        ssock = new ServerSocket();
+        ssock.Init();
+        StartCoroutine(SendInitialData());
+    }
 
-    public GameObject obj;  
-    float mspeed = 0.01f;  
+    IEnumerator SendInitialData()
+    {
+        // 等待直到连接建立
+        while (!ssock.IsClientConnected)
+        {
+            yield return null;
+        }
+        
+        // 发送初始位置和速度（假设初始速度为0）
+        Vector3 pos = obj.transform.position;
+        string initMsg = $"INIT,{pos.x},{pos.y},{pos.z},0,0,0";
+        ssock.SendClient(initMsg);
+    }
 
-    void Start()   
-    {  
-        ssock = new ServerSocket();  
-        ssock.Init();  
-    }  
+    void Update()
+    {
+        string msg = ssock.ReturnStr();
+        if (!string.IsNullOrEmpty(msg))
+        {
+            if (msg.StartsWith("POS"))
+            {
+                string[] parts = msg.Split(',');
+                if (parts.Length == 4)
+                {
+                    Vector3 newPos = new Vector3(
+                        float.Parse(parts[1]),
+                        float.Parse(parts[2]),
+                        float.Parse(parts[3])
+                    );
+                    obj.transform.position = newPos;
+                }
+            }
+        }
+    }
 
-    void Update()  
-    {  
-        // 检查是否有新消息  
-        string currentCommand = ssock.ReturnStr();  
-
-        // 处理新接收到的消息  
-        if (currentCommand != null)  
-        {  
-            str = currentCommand;  
-            if (str == "MXR")   
-            {  
-                obj.transform.Translate(Vector3.right * mspeed);  
-                Debug.Log(str);  
-            }  
-            // 还可以在这里添加处理其他命令的逻辑  
-        }  
-    }  
-
-    void OnApplicationQuit()  
-    {  
-        ssock.SocketQuit();  
-    }  
+    void OnApplicationQuit()
+    {
+        ssock.SocketQuit();
+    }
 }
