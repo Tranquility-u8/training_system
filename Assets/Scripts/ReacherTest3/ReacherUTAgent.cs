@@ -5,7 +5,7 @@ using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
 using Unity.MLAgents.Sensors;
 using Mujoco;
-public class ReacherUAgent : UAgent
+public class ReacherUTAgent : UTAgent
 {
     [SerializeField]
     MjHingeJoint hinge01;

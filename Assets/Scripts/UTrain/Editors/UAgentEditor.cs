@@ -7,14 +7,14 @@ using UnityEngine;
 using System.Collections.Generic;
 
 
-[CustomEditor(typeof(UAgent))]
+[CustomEditor(typeof(UTAgent))]
 public class UAgentEditor : Editor
 {
-    private UAgent _agent;
+    private UTAgent _agent;
 
     void OnEnable()
     {
-        _agent = (UAgent)target;
+        _agent = (UTAgent)target;
     }
 
     public override void OnInspectorGUI()

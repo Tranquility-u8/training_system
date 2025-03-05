@@ -284,7 +284,7 @@ public class UTrainWindow : EditorWindow
             prefabInstance.transform.SetParent(newParent.transform);  
         }  
         
-        UAgent agent = newParent.AddComponent<UAgent>();  
+        UTAgent agent = newParent.AddComponent<UTAgent>();  
         
         ProcessChildren(prefabInstance.transform, newParent.transform);
         for (int i = 0; i < newParent.transform.childCount; i++)
