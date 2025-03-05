@@ -23,6 +23,7 @@ using System.Text;
 using System.Xml;
 using UnityEngine;
 using UnityEngine.Profiling;
+using UnityEditor;
 
 namespace Mujoco {
 
@@ -35,6 +36,11 @@ public class MjScene : MonoBehaviour {
   public unsafe MujocoLib.mjModel_* Model = null;
   public unsafe MujocoLib.mjData_* Data = null;
 
+  public unsafe MujocoLib.mjData_* getData()
+  {
+    return Data;
+  }
+  
   // Public and global access to the active MjSceneGenerationContext.
   // Throws an exception if accessed when the scene is not being generated.
   public MjcfGenerationContext GenerationContext {

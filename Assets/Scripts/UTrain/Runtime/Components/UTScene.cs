@@ -3,9 +3,9 @@ using UnityEngine;
 
 public class UTScene : MjScene
 {
-    public unsafe MujocoLib.mjData_* getData()
+    public new static MjScene Instance
     {
-        return null;
+        get => MjScene.Instance;
     }
-
+    
 }

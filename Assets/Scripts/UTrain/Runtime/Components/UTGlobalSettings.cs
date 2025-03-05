@@ -1,7 +1,6 @@
-namespace UTrain.Runtime.Components
+using Mujoco;
+
+public class UTGlobalSettings: MjGlobalSettings
 {
-    public class UTGlobalSettings
-    {
-        
-    }
+    
 }

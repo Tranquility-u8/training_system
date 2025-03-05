@@ -33,7 +33,7 @@ public class ReacherUTAgent : UTAgent
     public unsafe override void OnEpisodeBegin() {
         base.OnEpisodeBegin();
         
-        var data = MjScene.Instance.Data;
+        var data = MjScene.Instance.getData();
 
         if (UTrainWindow.IsMuJoCo)
         {
