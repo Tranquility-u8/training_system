@@ -13,12 +13,11 @@ public struct DampsData
 
 public unsafe class UTData
 {
-    public UnityData* physXData;
+    private UnityData* physXData;
     
-    public MujocoLib.mjData_* mjData;
+    private MujocoLib.mjData_* mjData;
     
-    public DampsData* dampsData;
-    
+    private DampsData* dampsData;
     
     public UTData(UnityData* data)
     {
@@ -29,7 +28,6 @@ public unsafe class UTData
     {
         setData(data);
     }
-    
     
     public UTData(DampsData* data)
     {

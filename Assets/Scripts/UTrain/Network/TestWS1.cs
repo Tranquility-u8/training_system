@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class TestWS : MonoBehaviour
+public class TestWS1 : MonoBehaviour
 {
     ServerSocket ssock;
     public GameObject obj;
@@ -15,13 +15,11 @@ public class TestWS : MonoBehaviour
 
     IEnumerator SendInitialData()
     {
-        // 等待直到连接建立
         while (!ssock.IsClientConnected)
         {
             yield return null;
         }
         
-        // 发送初始位置和速度（假设初始速度为0）
         Vector3 pos = obj.transform.position;
         string initMsg = $"INIT,{pos.x},{pos.y},{pos.z},0,0,0";
         ssock.SendClient(initMsg);

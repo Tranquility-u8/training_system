@@ -64,30 +64,6 @@ public class ReacherUTAgent : UTAgent
         data.setJointAcc(hinge23, 0);
         data.setJointAcc(hinge34, 0);
         data.setJointAcc(hinge45, 0);
-        /*
-        if (UTrainWindow.IsMuJoCo)
-        {
-            data->qpos[hinge01.QposAddress] = 0;
-            data->qpos[hinge12.QposAddress] = 0;
-            data->qpos[hinge23.QposAddress] = 0;
-            data->qpos[hinge34.QposAddress] = 0;
-            data->qpos[hinge45.QposAddress] = 0;
-
-            data->qvel[hinge01.DofAddress] = 0;
-            data->qvel[hinge12.DofAddress] = 0;
-            data->qvel[hinge23.DofAddress] = 0;
-            data->qvel[hinge34.DofAddress] = 0;
-            data->qvel[hinge45.DofAddress] = 0;
-
-            data->qacc[hinge01.DofAddress] = 0;
-            data->qacc[hinge12.DofAddress] = 0;
-            data->qacc[hinge23.DofAddress] = 0;
-            data->qacc[hinge34.DofAddress] = 0;
-            data->qacc[hinge45.DofAddress] = 0; 
-        }
-        */
-        
-        
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -118,13 +94,13 @@ public class ReacherUTAgent : UTAgent
         if (dis < 0.5f)
         {
             SetReward(1.0f);
-            //Debug.Log("End Episode: Success");
+            Debug.Log("End Episode: Success");
             EndEpisode();
         }
         else if(dis > 3.0f)
         {
             SetReward(-0.2f);
-            //Debug.Log("End Episode: Out of Range");
+            Debug.Log("End Episode: Out of Range");
             EndEpisode();
         }
     }
