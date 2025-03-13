@@ -1,4 +1,3 @@
-// Unity端的TestWS.cs修改版
 using UnityEngine;
 using System.Collections;
 
@@ -18,7 +17,7 @@ public class TestWS2 : MonoBehaviour
     IEnumerator InitSimulation()
     {
         yield return new WaitUntil(() => ssock.IsClientConnected);
-
+        
         // 构造初始化参数：位置、尺寸、速度 | 铰链参数
         Vector3 pos1 = cube1.transform.position;
         Vector3 scale1 = cube1.transform.localScale;
