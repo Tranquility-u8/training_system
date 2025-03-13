@@ -21,11 +21,11 @@ public class TestWS2 : MonoBehaviour
         // 构造初始化参数：位置、尺寸、速度 | 铰链参数
         Vector3 pos1 = cube1.transform.position;
         Vector3 scale1 = cube1.transform.localScale;
-        string cube1Params = $"{pos1.x},{pos1.y},{pos1.z},{scale1.x/2},{scale1.y/2},{scale1.z/2},0,0,0.1";
+        string cube1Params = $"{pos1.x},{pos1.y},{pos1.z},{scale1.x/2},{scale1.y/2},{scale1.z/2}";
 
         Vector3 pos2 = cube2.transform.position;
         Vector3 scale2 = cube2.transform.localScale;
-        string cube2Params = $"{pos2.x},{pos2.y},{pos2.z},{scale2.x/2},{scale2.y/2},{scale2.z/2},0,0,0";
+        string cube2Params = $"{pos2.x},{pos2.y},{pos2.z},{scale2.x/2},{scale2.y/2},{scale2.z/2}";
 
         // 铰链参数（根据实际连接点设置）
         string hingeParams = "-0.6,-0.2,0,0,0.5,0,0,1,0,0,1,0";
@@ -70,7 +70,9 @@ public class TestWS2 : MonoBehaviour
             float.Parse(parts[index++])
         );
         //t.transform.position = pos;
-        t.SetPositionAndRotation(pos, rot);
+        t.rotation = rot;
+        t.position = pos;
+        //t.SetPositionAndRotation(pos, rot);
     }
 
     void OnApplicationQuit()

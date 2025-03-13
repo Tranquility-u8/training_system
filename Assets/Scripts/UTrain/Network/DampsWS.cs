@@ -2,12 +2,14 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Mujoco;
+using UnityEngine.Serialization;
 
-public class TestWS3 : MonoBehaviour
+public class DampsWS : MonoBehaviour
 {
-    public List<GameObject> cubes = new List<GameObject>();
+    public List<GameObject> links = new List<GameObject>();
     public List<UTHingeJoint> hinges = new List<UTHingeJoint>();
-
+    
     ServerSocket ssock;
 
     void Start()
@@ -24,13 +26,22 @@ public class TestWS3 : MonoBehaviour
         StringBuilder initMsg = new StringBuilder("INIT");
         
         // 添加Cube数量及参数
-        initMsg.AppendFormat("|{0}", cubes.Count);
-        foreach (GameObject cube in cubes)
+        initMsg.AppendFormat("|{0}", links.Count);
+        foreach (GameObject link in links)
         {
-            Vector3 pos = cube.transform.position;
-            Vector3 scale = cube.transform.localScale;
-            string cubeParams = $"{pos.x},{pos.y},{pos.z}," +
-                               $"{scale.x/2},{scale.y/2},{scale.z/2},"; 
+            LocalCubeGizmo localCube = link.GetComponent<LocalCubeGizmo>();
+            
+            Quaternion rot = link.transform.rotation;
+            Vector3 pos = link.transform.position + rot * localCube.centerOffset;
+            Vector3 scale = localCube.scale;
+            int isKinematic = link.GetComponent<MjGeom>().Settings.IsKinematic ? 1 : 0;
+            
+            string cubeParams = $"{pos.x},{pos.y},{-pos.z}," +
+                               $"{scale.x/2},{scale.y/2},{scale.z/2}," +
+                               $"{rot.x},{rot.y},{rot.z},{rot.w}," +
+                               $"{isKinematic}," +
+                               $"{localCube.testVel.x},{localCube.testVel.y},{-localCube.testVel.z}";
+
             initMsg.AppendFormat("|{0}", cubeParams);
         }
 
@@ -38,8 +49,8 @@ public class TestWS3 : MonoBehaviour
         initMsg.AppendFormat("|{0}", hinges.Count);
         foreach (UTHingeJoint hinge in hinges)
         {
-            int parentIdx = cubes.IndexOf(hinge.Parent);
-            int childIdx = cubes.IndexOf(hinge.Child);
+            int parentIdx = links.IndexOf(hinge.Parent);
+            int childIdx = links.IndexOf(hinge.Child);
             
             if(parentIdx == -1 || childIdx == -1){
                 Debug.LogError("Hinge关节引用了不存在的Cube!");
@@ -47,9 +58,10 @@ public class TestWS3 : MonoBehaviour
             }
             
             string hingeParams = $"{parentIdx},{childIdx}," +
-                                $"{hinge.LocalPointA.x},{hinge.LocalPointA.y},{hinge.LocalPointA.z}," +
-                                $"{hinge.LocalPointB.x},{hinge.LocalPointB.y},{hinge.LocalPointB.z}," +
-                                $"{hinge.Axis.x},{hinge.Axis.y},{hinge.Axis.z}";
+                                $"{hinge.LocalPointA.x},{hinge.LocalPointA.y},{-hinge.LocalPointA.z}," +
+                                $"{hinge.LocalPointB.x},{hinge.LocalPointB.y},{-hinge.LocalPointB.z}," +
+                                $"{hinge.Axis.x},{hinge.Axis.y},{-hinge.Axis.z}";
+
             initMsg.AppendFormat("|{0}", hingeParams);
         }
 
@@ -62,12 +74,12 @@ public class TestWS3 : MonoBehaviour
         if (!string.IsNullOrEmpty(msg) && msg.StartsWith("OBJ_UPDATE"))
         {
             string[] parts = msg.Split(',');
-            int expectedLength = 1 + cubes.Count * 7; // Header + n*(position+rotation)
+            int expectedLength = 1 + links.Count * 7; // Header + n*(position+rotation)
             
             if (parts.Length >= expectedLength)
             {
                 int index = 1;
-                foreach (GameObject cube in cubes)
+                foreach (GameObject cube in links)
                 {
                     if (index + 6 >= parts.Length) break;
                     UpdateTransform(cube.transform, parts, ref index);
@@ -90,8 +102,9 @@ public class TestWS3 : MonoBehaviour
             float.Parse(parts[index++]),
             float.Parse(parts[index++])
         );
-        //t.transform.position = pos;
-        t.SetPositionAndRotation(pos, rot);
+        t.rotation = rot;
+        t.position = pos;
+        //t.SetPositionAndRotation(pos, rot);
     }
 
 }
