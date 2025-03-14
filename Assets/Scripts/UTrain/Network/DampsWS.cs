@@ -25,7 +25,7 @@ public class DampsWS : MonoBehaviour
         
         StringBuilder initMsg = new StringBuilder("INIT");
         
-        // 添加Cube数量及参数
+        // Cube
         initMsg.AppendFormat("|{0}", links.Count);
         foreach (GameObject link in links)
         {
@@ -45,7 +45,7 @@ public class DampsWS : MonoBehaviour
             initMsg.AppendFormat("|{0}", cubeParams);
         }
 
-        // 添加Hinge数量及参数
+        // Hinge
         initMsg.AppendFormat("|{0}", hinges.Count);
         foreach (UTHingeJoint hinge in hinges)
         {
@@ -53,7 +53,7 @@ public class DampsWS : MonoBehaviour
             int childIdx = links.IndexOf(hinge.Child);
             
             if(parentIdx == -1 || childIdx == -1){
-                Debug.LogError("Hinge关节引用了不存在的Cube!");
+                Debug.LogError("Cube not existed!");
                 continue;
             }
             

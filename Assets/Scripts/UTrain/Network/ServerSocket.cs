@@ -48,12 +48,6 @@ public class ServerSocket
         thread = new Thread(new ThreadStart(GoClient));
 
         thread.Start();
-        
-        // 在ServerSocket.Init()中添加
-        Debug.Log($"服务器实际绑定地址: {ipep}");
-        Debug.Log($"Socket地址族: {serverSocket.AddressFamily}");
-        Debug.Log($"协议类型: {serverSocket.ProtocolType}");
-        Debug.Log($"Socket是否阻塞: {serverSocket.Blocking}");
 
     }
  
@@ -82,16 +76,15 @@ public class ServerSocket
         clientSocket = serverSocket.Accept();
     }
     
-// 修改后的ServerSocket.SendClient方法
+
     public void SendClient(string str) 
     {
         try 
         {
-            // 添加三重验证
             if (clientSocket == null || 
                 !clientSocket.Connected) 
             {
-                Debug.LogWarning("发送失败：客户端未连接");
+                Debug.LogWarning("Network failure：Server Disconnected");
                 return;
             }
 
@@ -100,13 +93,12 @@ public class ServerSocket
         }
         catch (SocketException e) 
         {
-            Debug.LogError($"网络错误: {e.ErrorCode} - {e.Message}");
-            // 发生异常时重置连接
+            Debug.LogError($"Network failure: {e.ErrorCode} - {e.Message}");
             SocketQuit();
         }
         catch (NullReferenceException e) 
         {
-            Debug.LogError($"空引用异常: {e.Message}");
+            Debug.LogError($"Null error: {e.Message}");
             SocketQuit();
         }
     }
