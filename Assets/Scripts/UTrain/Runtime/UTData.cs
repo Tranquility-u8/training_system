@@ -60,7 +60,7 @@ public unsafe class UTData
                 mjData->qpos[joint.QposAddress] = val;
                 break;
             default:
-                Debug.LogWarning("engineType not supported");
+                //Debug.LogWarning("engineType not supported");
                 break;
         }
     }
@@ -76,7 +76,7 @@ public unsafe class UTData
                 mjData->qvel[joint.DofAddress] = val;
                 break;
             default:
-                Debug.LogWarning("engineType not supported");
+                //Debug.LogWarning("engineType not supported");
                 break;
         }
     }
@@ -86,13 +86,12 @@ public unsafe class UTData
         switch (UTrainWindow.engineType)
         {
             case "PhysX":
-                // TODO
                 break;
             case "MuJoCo":
                 mjData->qacc[joint.DofAddress] = val;
                 break;
             default:
-                Debug.LogWarning("engineType not supported");
+                //Debug.LogWarning("engineType not supported");
                 break;
         }
     }
