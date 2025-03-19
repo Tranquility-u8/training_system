@@ -61,7 +61,7 @@ public class DampsAgent : UTAgent
         base.CollectObservations(sensor);
         
         // TEST
-        if (UTrainWindow.IsPhysX)
+        if (UTrainWindow.IsPhysX || UTrainWindow.IsDamps)
         {
             sensor.AddObservation(hinge01.transform.localPosition);
             sensor.AddObservation(hinge01.transform.rotation);
