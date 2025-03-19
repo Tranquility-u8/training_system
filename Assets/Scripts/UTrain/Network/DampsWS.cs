@@ -60,8 +60,9 @@ public class DampsWS : MonoBehaviour
             string hingeParams = $"{parentIdx},{childIdx}," +
                                 $"{hinge.LocalPointA.x},{hinge.LocalPointA.y},{-hinge.LocalPointA.z}," +
                                 $"{hinge.LocalPointB.x},{hinge.LocalPointB.y},{-hinge.LocalPointB.z}," +
+                                $"{hinge.Axis.x},{hinge.Axis.y},{-hinge.Axis.z}," +
                                 $"{hinge.Axis.x},{hinge.Axis.y},{-hinge.Axis.z}";
-
+            
             initMsg.AppendFormat("|{0}", hingeParams);
         }
 

@@ -11,6 +11,8 @@ public class UTHingeJoint : MjHingeJoint
     public Vector3 LocalPointA => Parent.transform.InverseTransformPoint(Anchor);
     public Vector3 LocalPointB => Child.transform.InverseTransformPoint(Anchor);
     public Vector3 Axis => this.transform.right;
+    public Vector3 AxisA => Quaternion.Inverse(Parent.transform.rotation) * Axis;
+    public Vector3 AxisB => Quaternion.Inverse(Child.transform.rotation) * Axis;
     
     private void Awake()
     {

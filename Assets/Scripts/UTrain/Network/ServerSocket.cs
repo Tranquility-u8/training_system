@@ -53,21 +53,21 @@ public class ServerSocket
  
     void GoClient()
     {
-        ConnetClient();
+        ConnectClient();
         while (true)
         {
             receiveData = new byte[1024];
             recv = clientSocket.Receive(receiveData);
             if (recv == 0)
             {
-                ConnetClient();
+                ConnectClient();
                 continue;
             }
             receiveStr = Encoding.ASCII.GetString(receiveData, 0, recv);
         }
     }
     
-    void ConnetClient()
+    void ConnectClient()
     {
         if (clientSocket != null)
         {

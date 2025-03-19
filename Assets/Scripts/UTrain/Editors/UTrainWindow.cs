@@ -22,6 +22,7 @@ public class UTrainWindow : EditorWindow
     public IPhysicsEngine ActiveEngine { get; private set; }
     public static bool IsPhysX => engineType == "PhysX";
     public static bool IsMuJoCo => engineType == "MuJoCo";
+    public static bool IsDamps => engineType == "Damps";
     public static MjGlobalSettings mjGlobalSetting;
     
     public static string engineType 
@@ -431,23 +432,23 @@ pause
 
     private void UpdateSceneComponents()
     {
-        bool isPhysX = IsPhysX;
-        HandleMjComponents(isPhysX);
-        if (isPhysX)
+        HandleMjComponents();
+        
+        if (IsPhysX)
         {
-            HandleBodyComponents(isPhysX);
-            HandleJointComponents(isPhysX);
+            HandleBodyComponents();
+            HandleJointComponents();
         }
         else
         {
-            HandleJointComponents(isPhysX);
-            HandleBodyComponents(isPhysX);
-        }
+            HandleJointComponents();
+            HandleBodyComponents();
+        }   
 
-        LateHandleJointComponents(isPhysX);
+        LateHandleJointComponents();
     }
     
-    void HandleJointComponents(bool isPhysX)
+    void HandleJointComponents()
     {
         var mjjs = FindObjectsOfType<MjHingeJoint>();
         foreach (var mjj in mjjs)
@@ -456,7 +457,7 @@ pause
             var child = mjj.Child;
             var hj = child.GetComponent<HingeJoint>();
 
-            if (isPhysX)
+            if (IsPhysX)
             {
                 if (!hj)
                 {
@@ -466,7 +467,11 @@ pause
                 hj.axis = VectorUtils.RoundTinyToZero(child.transform.InverseTransformDirection(worldAxis).normalized);
                 hj.anchor = VectorUtils.RoundTinyToZero(child.transform.InverseTransformPoint(mjj.transform.position)); 
             }
-            else
+            else if(IsMuJoCo)
+            {
+                if(hj)
+                    DestroyImmediate(hj);
+            }else if (IsDamps)
             {
                 if(hj)
                     DestroyImmediate(hj);
@@ -475,12 +480,15 @@ pause
         }
     }
 
-    void HandleBodyComponents(bool isPhysX) {
+    void HandleBodyComponents() {
         var objs = FindObjectsOfType<MjMeshFilter>();
         foreach (var obj in objs) {
             var rb = obj.GetComponent<Rigidbody>();
             var cld = obj.GetComponent<MeshCollider>();
-            if (isPhysX)
+            var mrs = obj.GetComponent<MeshRenderer>();
+            var giz = obj.GetComponent<LocalCubeGizmo>();
+            
+            if (IsPhysX)
             {
                 if (!rb)
                 {
@@ -494,19 +502,45 @@ pause
                     cld = obj.AddComponent<MeshCollider>();
                     cld.convex = true;
                 }
+                if (mrs)
+                    mrs.enabled = true;
+                if(giz)
+                    giz.enabled = false;
                 
-            } else{
+            } else if(IsMuJoCo){
                 if(cld)
                     DestroyImmediate(cld);
                 if(rb)
                     DestroyImmediate(rb);
+                if(mrs)
+                    mrs.enabled = true;
+                if(giz)
+                    giz.enabled = false;
+                
+            } else if (IsDamps)
+            {
+                if(cld)
+                    DestroyImmediate(cld);
+                if(rb)
+                    DestroyImmediate(rb);
+                if(mrs)
+                    mrs.enabled = false;
+                if (giz)
+                {
+                    giz.enabled = true;
+                }
+                else
+                {
+                    obj.AddComponent<LocalCubeGizmo>();
+                }
+                
             }
         }
     }
 
-    void LateHandleJointComponents(bool isPhysX)
+    void LateHandleJointComponents()
     {
-        if(!isPhysX) return;
+        if(!IsPhysX) return;
         
         var mjJoints = FindObjectsOfType<MjHingeJoint>();
         foreach (var mjj in mjJoints) {
@@ -516,9 +550,9 @@ pause
         } 
     }
         
-    void HandleMjComponents(bool isPhysX)
+    void HandleMjComponents()
     {
-        SetAllMjComponentsEnabled(!isPhysX);
+        SetAllMjComponentsEnabled(IsMuJoCo);
     }
     
     static void SetAllMjComponentsEnabled(bool enabled)
