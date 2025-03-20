@@ -87,6 +87,12 @@ public class DampsWS : MonoBehaviour
                 }
             }
         }
+        
+        //Test
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            AddTorque(1, new Vector3(0, 1, 0));
+        }
     }
 
     void UpdateTransform(Transform t, string[] parts, ref int index)
@@ -105,7 +111,17 @@ public class DampsWS : MonoBehaviour
         );
         t.rotation = rot;
         t.position = pos;
-        //t.SetPositionAndRotation(pos, rot);
     }
 
+    public void AddTorque(int cubeId, Vector3 torque)
+    {
+        if (cubeId < 0 || cubeId >= links.Count)
+        {
+            Debug.LogError("Invalid cube ID");
+            return;
+        }
+        
+        string torqueMsg = $"ADD_TORQUE|{cubeId}|{torque.x},{torque.y},{-torque.z}\n";
+        ssock.SendClient(torqueMsg);
+    }
 }

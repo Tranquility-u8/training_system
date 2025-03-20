@@ -1,6 +1,7 @@
 using UnityEngine;
 
 [System.Serializable]
+    
 public class UJointLinkConfig
 {
     public string linkName;
