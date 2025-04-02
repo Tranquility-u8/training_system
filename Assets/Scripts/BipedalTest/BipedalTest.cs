@@ -64,6 +64,7 @@ public class BipedalAgent : UTAgent
         }
         
         // TEST
+        /*
         float dis = Vector3.Distance(goal.transform.position, effector.transform.position);
         if (dis < 0.5f)
         {
@@ -77,5 +78,6 @@ public class BipedalAgent : UTAgent
             Debug.Log("End Episode: Out of Range");
             EndEpisode();
         }
+        */
     }
 }
