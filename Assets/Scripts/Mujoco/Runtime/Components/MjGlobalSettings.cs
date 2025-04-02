@@ -390,5 +390,33 @@ public class MjGlobalSettings : MonoBehaviour {
       numericMjcf.SetAttribute("data", numeric.Data);
     }
   }
+  
+  public void OnGravityToggled()
+  {
+    bool isGravityEnabled = (GlobalOptions.Flag.Gravity == EnableDisableFlag.enable);
+    //Debug.Log($"Editor Gravity Changed: {isGravityEnabled}");
+    
+    if (isGravityEnabled) EnableGravityInScene();
+    else DisableGravityInScene();
+  }
+
+  private void EnableGravityInScene()
+  {
+    var rigids = FindObjectsOfType<Rigidbody>();
+    foreach (var rigid in rigids)
+    {
+      rigid.useGravity = true;
+    }
+  }
+
+  private void DisableGravityInScene()
+  {
+    var rigids = FindObjectsOfType<Rigidbody>();
+    foreach (var rigid in rigids)
+    {
+      rigid.useGravity = false;
+    }
+  }
 }
+
 }

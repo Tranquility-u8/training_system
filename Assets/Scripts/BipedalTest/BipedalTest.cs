@@ -36,7 +36,7 @@ public class BipedalAgent : UTAgent
         
         UTData data = MjScene.Instance.getUTData();
 
-        data.setJointPos(hinge01, 0);
+        //data.setJointPos(hinge01, 0);
         
         z_0 = body.transform.localPosition.z;
     }
@@ -61,7 +61,7 @@ public class BipedalAgent : UTAgent
             var vectorAction = actions.ContinuousActions;
             var torque = Mathf.Clamp(vectorAction[0], -1f, 1f) * 150f;
         
-            j1.GetComponent<Rigidbody>().AddTorque(new Vector3(0f, torque, 0f));
+            //j1.GetComponent<Rigidbody>().AddTorque(new Vector3(0f, torque, 0f));
         }
         
         z_t = body.transform.localPosition.z;

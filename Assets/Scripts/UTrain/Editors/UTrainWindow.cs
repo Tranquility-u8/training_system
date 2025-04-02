@@ -6,6 +6,7 @@ using System.Diagnostics;
 using UnityEditor;
 using UnityEngine;
 using System.IO;
+using System.IO.Abstractions.TestingHelpers;
 using System.Text;
 using Mujoco;
 using Unity.MLAgents.Policies;
@@ -487,6 +488,7 @@ pause
             var cld = obj.GetComponent<MeshCollider>();
             var mrs = obj.GetComponent<MeshRenderer>();
             var giz = obj.GetComponent<LocalCubeGizmo>();
+            var geom = obj.GetComponent<MjGeom>();
             
             if (IsPhysX)
             {
@@ -500,7 +502,14 @@ pause
                 if (!cld)
                 {
                     cld = obj.AddComponent<MeshCollider>();
-                    cld.convex = true;
+                    if (geom.ShapeType == MjShapeComponent.ShapeTypes.Plane)
+                    {
+                        cld.convex = false;
+                    }
+                    else
+                    {
+                        cld.convex = true;
+                    }
                 }
                 if (mrs)
                     mrs.enabled = true;
