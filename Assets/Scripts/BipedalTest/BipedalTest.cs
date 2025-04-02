@@ -13,12 +13,13 @@ public class BipedalAgent : UTAgent
     [SerializeField]
     UTHingeJoint hinge01;
     
-    [SerializeField]
-    public GameObject effector;
     
     [SerializeField]
-    public GameObject goal;
+    public GameObject body;
 
+    public float z_0;
+    public float z_t;
+    
     [SerializeField]
     public GameObject j1;
 
@@ -37,7 +38,7 @@ public class BipedalAgent : UTAgent
 
         data.setJointPos(hinge01, 0);
         
-
+        z_0 = body.transform.localPosition.z;
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -62,6 +63,11 @@ public class BipedalAgent : UTAgent
         
             j1.GetComponent<Rigidbody>().AddTorque(new Vector3(0f, torque, 0f));
         }
+        
+        z_t = body.transform.localPosition.z;
+        AddReward(z_0 - z_t);
+
+        z_0 = z_t;
         
         // TEST
         /*
