@@ -457,12 +457,17 @@ pause
             var parent = mjj.Parent;
             var child = mjj.Child;
             var hj = child.GetComponent<HingeJoint>();
-
+            var hjc = child.GetComponent<HingeJointController>();
             if (IsPhysX)
             {
                 if (!hj)
                 {
                     hj = child.AddComponent<HingeJoint>();
+                }
+
+                if (!hjc)
+                {
+                    hjc = child.AddComponent<HingeJointController>();
                 }
                 Vector3 worldAxis = mjj.transform.right;
                 hj.axis = VectorUtils.RoundTinyToZero(child.transform.InverseTransformDirection(worldAxis).normalized);

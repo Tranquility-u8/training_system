@@ -49,7 +49,7 @@ public class MjReacherAgent : Agent
         // Get the reference to the bindings of the mjData structure https://mujoco.readthedocs.io/en/latest/APIreference.html#mjdata
         var data = MjScene.Instance.Data;
 
-        // Reset kinematics to 0
+        // reset kinematics to 0
         data->qpos[hinge01.QposAddress] = 0;
         data->qpos[hinge12.QposAddress] = 0;
         

@@ -49,6 +49,22 @@ public unsafe class UTData
         dampsData = data;
     }
 
+    public void resetJoint(UTHingeJoint joint)
+    {
+        switch (UTrainWindow.engineType)
+        {
+            case "PhysX":
+                joint.reset();
+                break;
+            case "MuJoCo":
+                //Debug.LogWarning("engineType not supported");
+                break;
+            default:
+                //Debug.LogWarning("engineType not supported");
+                break;
+        }
+    }
+    
     public void setJointPos(UTHingeJoint joint, double val)
     {
         switch (UTrainWindow.engineType)
@@ -65,7 +81,7 @@ public unsafe class UTData
         }
     }
     
-    public void setJointVel(UTHingeJoint joint, double val)
+    public void setJointVel(UTHingeJoint joint, float val)
     {
         switch (UTrainWindow.engineType)
         {

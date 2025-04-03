@@ -82,7 +82,7 @@ public class MjcfImporter {
   }
 
   public unsafe GameObject ImportXml(XmlDocument mjcfXml, string name = null) {
-    // Reset the numbering of anonymous nodes to ensure deterministic naming of loaded scenes.
+    // reset the numbering of anonymous nodes to ensure deterministic naming of loaded scenes.
     _numGeneratedNames = 0;
 
     _modifiers = new MjXmlModifiers(mjcfXml);

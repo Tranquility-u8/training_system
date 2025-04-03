@@ -36,7 +36,7 @@ public class CartpoleAgent : Agent {
     // Get the reference to the bindings of the mjData structure https://mujoco.readthedocs.io/en/latest/APIreference.html#mjdata
     var data = MjScene.Instance.Data;
 
-    // Reset kinematics to 0
+    // reset kinematics to 0
     data->qpos[hinge.QposAddress] = 0;
     data->qpos[slide.QposAddress] = 0;
 
