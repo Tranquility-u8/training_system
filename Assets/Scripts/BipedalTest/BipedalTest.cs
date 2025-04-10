@@ -83,7 +83,6 @@ public class BipedalAgent : UTAgent
     public override void CollectObservations(VectorSensor sensor) {
         base.CollectObservations(sensor);
         
-        // TEST
         if (UTrainWindow.IsPhysX || UTrainWindow.IsDamps)
         {
             sensor.AddObservation(body.transform.up);        

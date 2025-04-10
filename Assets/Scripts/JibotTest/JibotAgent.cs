@@ -11,24 +11,37 @@ using Unity.MLAgents.Policies;
 public class JibotAgent : UTAgent
 {
     [SerializeField]
-    UTHingeJoint hinge01;
-    
-    
+    List<UTHingeJoint> utHinges;
+    List<HingeJoint> hingeJoints = new List<HingeJoint>();
+    List<HingeJointController> hingeJointControllers = new List<HingeJointController>();
     
     [SerializeField]
     public GameObject effector;
     
     [SerializeField]
-    public GameObject goal;
-
-    [SerializeField]
-    public GameObject j1;
+    public GameObject target;
+    
 
     private void Awake()
     {
         if (UTrainWindow.IsMuJoCo)
         {
             this.GetComponent<BehaviorParameters>().BrainParameters.VectorObservationSize = 0;
+        }
+
+        foreach (var utHinge in utHinges)
+        {
+            HingeJoint hj = utHinge.Child.GetComponent<HingeJoint>();
+            if (hj)
+            {
+                hingeJoints.Add(hj);
+            }
+
+            HingeJointController hjc = utHinge.Child.GetComponent<HingeJointController>();
+            if (hjc)
+            {
+                hingeJointControllers.Add(hjc);
+            }
         }
     }
 
@@ -37,35 +50,45 @@ public class JibotAgent : UTAgent
         
         UTData data = MjScene.Instance.getUTData();
 
-        data.setJointPos(hinge01, 0);
-        
-
+        foreach (var uth in utHinges)
+        {
+            data.resetJoint(uth);
+        }
     }
 
     public override void CollectObservations(VectorSensor sensor) {
         base.CollectObservations(sensor);
         
-        // TEST
         if (UTrainWindow.IsPhysX || UTrainWindow.IsDamps)
         {
-            sensor.AddObservation(hinge01.transform.localPosition);
-            sensor.AddObservation(hinge01.transform.rotation);
+            foreach (var hj in hingeJoints)
+            {
+                sensor.AddObservation(hj.angle);
+                sensor.AddObservation(hj.velocity);
+            }
         }
     }
 
     public override void OnActionReceived(ActionBuffers actions) {
         base.OnActionReceived(actions);
         
-        // TEST
+        // Action
         if (UTrainWindow.IsPhysX)
         {
             var vectorAction = actions.ContinuousActions;
-            var torque = Mathf.Clamp(vectorAction[0], -1f, 1f) * 150f;
-        
-            j1.GetComponent<Rigidbody>().AddTorque(new Vector3(0f, torque, 0f));
+            
+            float angleRange = 120f;
+            
+            for (int i = 0; i < hingeJointControllers.Count; i++)
+            {
+                //hingeJointControllers[i].TargetAngle = 0f;
+                //hingeJointControllers[i].TargetAngle = Mathf.Clamp(vectorAction[i], -1f, 1f) * angleRange;
+            }
+            
         }
         
-        // TEST
+        // Reward
+        /*
         float dis = Vector3.Distance(goal.transform.position, effector.transform.position);
         if (dis < 0.5f)
         {
@@ -79,5 +102,6 @@ public class JibotAgent : UTAgent
             Debug.Log("End Episode: Out of Range");
             EndEpisode();
         }
+        */
     }
 }

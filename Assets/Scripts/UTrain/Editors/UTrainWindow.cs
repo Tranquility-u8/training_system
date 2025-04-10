@@ -469,9 +469,11 @@ pause
                 {
                     hjc = child.AddComponent<HingeJointController>();
                 }
+                
                 Vector3 worldAxis = mjj.transform.right;
                 hj.axis = VectorUtils.RoundTinyToZero(child.transform.InverseTransformDirection(worldAxis).normalized);
                 hj.anchor = VectorUtils.RoundTinyToZero(child.transform.InverseTransformPoint(mjj.transform.position)); 
+                hj.useSpring = true;
             }
             else if(IsMuJoCo)
             {
@@ -507,6 +509,7 @@ pause
                 }
                 rb.useGravity = false;
                 rb.isKinematic = obj.GetComponent<MjGeom>().Settings.IsKinematic;
+                rb.mass = 100f;
                 
                 if (!cld)
                 {

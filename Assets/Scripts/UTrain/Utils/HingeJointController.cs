@@ -3,28 +3,26 @@ using UnityEngine;
 public class HingeJointController : MonoBehaviour
 {
     private HingeJoint hinge;
-    public float TargetAngle { get; set; }  
-    public float Stiffness = 1000f;         
-    public float Damping = 50f;             
+    public float TargetAngle;
+    public float Stiffness = 500f;
+    public float Damping = 50f;
 
     void Start()
     {
         hinge = GetComponent<HingeJoint>();
-        hinge.useSpring = false;
-        hinge.useMotor = true;  
+        hinge.useSpring = true;
+        hinge.useMotor = false;
+        
+        JointSpring spring = new JointSpring();
+        spring.spring = Stiffness;
+        spring.damper = Damping;
+        hinge.spring = spring;
     }
 
     void FixedUpdate()
     {
-        float currentAngle = hinge.angle;
-        currentAngle = (currentAngle > 180) ? currentAngle - 360 : currentAngle;
-        
-        float error = TargetAngle - currentAngle;
-        float velocity = error * Stiffness - hinge.velocity * Damping;
-        
-        JointMotor motor = hinge.motor;
-        motor.targetVelocity = velocity;
-        motor.force = Stiffness * 2;  
-        hinge.motor = motor;
+        JointSpring spring = hinge.spring;
+        spring.targetPosition = TargetAngle;
+        hinge.spring = spring;
     }
 }

@@ -29,21 +29,24 @@ public class UTHingeJoint : MjHingeJoint
     // Robot DOF -> Unity Transform
     public void reset()
     {
-        Child.transform.position = childInitialPosition;
-        Child.transform.rotation = childInitialRotation;
+        if (!Child.GetComponent<Rigidbody>().isKinematic)
+        {
+            Child.transform.position = childInitialPosition;
+            Child.transform.rotation = childInitialRotation;
         
-        Parent.transform.position = parentInitialPosition;
-        Parent.transform.rotation = parentInitialRotation;
+            Child.GetComponent<Rigidbody>().velocity = Vector3.zero;
+            Child.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+        }
+
+        if (!Parent.GetComponent<Rigidbody>().isKinematic)
+        {
+            Parent.transform.position = parentInitialPosition;
+            Parent.transform.rotation = parentInitialRotation;
         
-        Child.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        Child.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-        
-        Parent.GetComponent<Rigidbody>().velocity = Vector3.zero;
-        Parent.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
-        
-        JointMotor motor = Child.GetComponent<HingeJoint>().motor;
-        motor.targetVelocity = 0;
-        motor.force = 0;  
+            Parent.GetComponent<Rigidbody>().velocity = Vector3.zero;
+            Parent.GetComponent<Rigidbody>().angularVelocity = Vector3.zero;
+        }
+        // Reset Spring
     }
     
     public void setPosition(double val)
