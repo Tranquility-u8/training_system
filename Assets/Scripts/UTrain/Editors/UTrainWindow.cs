@@ -477,10 +477,14 @@ pause
             {
                 if(hj)
                     DestroyImmediate(hj);
+                if(hjc)
+                    DestroyImmediate(hjc);
             }else if (IsDamps)
             {
                 if(hj)
                     DestroyImmediate(hj);
+                if(hjc)
+                    DestroyImmediate(hjc);
             }
 
         }
