@@ -1,28 +1,35 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class HingeJointController : MonoBehaviour
 {
-    private HingeJoint hinge;
-    public float TargetAngle;
-    public float Stiffness = 500f;
-    public float Damping = 50f;
+    private HingeJoint joint;
+    
+    [Header("Joint Settings")]
+    [SerializeField] private float minAngle = -90f;
+    [SerializeField] private float maxAngle = 90f;
+    private float maxSpringForce = 100f;
+    private float damping = 500000f;
 
     void Start()
     {
-        hinge = GetComponent<HingeJoint>();
-        hinge.useSpring = true;
-        hinge.useMotor = false;
+        joint = GetComponent<HingeJoint>();
+        joint.useSpring = true;
         
-        JointSpring spring = new JointSpring();
-        spring.spring = Stiffness;
-        spring.damper = Damping;
-        hinge.spring = spring;
+        var spring = new JointSpring();
+        spring.spring = maxSpringForce;
+        spring.damper = damping;
+        spring.targetPosition = 0;
+        joint.spring = spring;
     }
 
-    void FixedUpdate()
+    public void SetJointTarget(float normalizedAngle, float strength)
     {
-        JointSpring spring = hinge.spring;
-        spring.targetPosition = TargetAngle;
-        hinge.spring = spring;
+        float targetAngle = Mathf.Lerp(minAngle, maxAngle, (normalizedAngle + 1f) * 0.5f);
+        
+        var spring = joint.spring;
+        spring.targetPosition = targetAngle;
+        spring.spring = Mathf.Lerp(0, maxSpringForce, (strength + 1f) * 0.5f);
+        joint.spring = spring;
     }
 }

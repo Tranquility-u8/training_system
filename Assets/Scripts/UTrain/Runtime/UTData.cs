@@ -49,7 +49,7 @@ public unsafe class UTData
         dampsData = data;
     }
 
-    public void resetJoint(UTHingeJoint joint)
+    public void ResetJoint(UTHingeJoint joint)
     {
         switch (UTrainWindow.engineType)
         {

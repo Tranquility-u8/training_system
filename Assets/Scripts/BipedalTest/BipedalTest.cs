@@ -61,7 +61,7 @@ public class BipedalAgent : UTAgent
             UTData data = MjScene.Instance.getUTData();
             foreach (var uth in utHinges)
             {
-                data.resetJoint(uth);
+                data.ResetJoint(uth);
             }
         }
     }
@@ -73,7 +73,7 @@ public class BipedalAgent : UTAgent
 
         foreach (var uth in utHinges)
         {
-            data.resetJoint(uth);
+            data.ResetJoint(uth);
         }
         
         lastBodyPosition = body.transform.position;
@@ -123,7 +123,8 @@ public class BipedalAgent : UTAgent
 
             for (int i = 0; i < hingeJointControllers.Count; i++)
             {
-                hingeJointControllers[i].TargetAngle = Mathf.Clamp(vectorAction[i], -1f, 1f) * angleRange;
+                // TEST
+                hingeJointControllers[i].SetJointTarget(Mathf.Clamp(vectorAction[i], -1f, 1f) * angleRange, 0);
             }
             
         }

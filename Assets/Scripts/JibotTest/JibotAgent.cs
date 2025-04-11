@@ -12,8 +12,25 @@ public class JibotAgent : UTAgent
 {
     [SerializeField]
     List<UTHingeJoint> utHinges;
-    List<HingeJoint> hingeJoints = new List<HingeJoint>();
-    List<HingeJointController> hingeJointControllers = new List<HingeJointController>();
+    List<ConfigurableJoint> cjoints = new List<ConfigurableJoint>();
+    
+    [SerializeField]
+    UTJointController jointController;
+    
+    [SerializeField]
+    Rigidbody rb1;
+    [SerializeField]
+    Rigidbody rb2;
+    [SerializeField]
+    Rigidbody rb3;
+    [SerializeField]
+    Rigidbody rb4;
+    [SerializeField]
+    Rigidbody rb5;
+    [SerializeField]
+    Rigidbody rb6;
+    [SerializeField]
+    Rigidbody rb7;
     
     [SerializeField]
     public GameObject effector;
@@ -31,18 +48,16 @@ public class JibotAgent : UTAgent
 
         foreach (var utHinge in utHinges)
         {
-            HingeJoint hj = utHinge.Child.GetComponent<HingeJoint>();
-            if (hj)
+            ConfigurableJoint cj = utHinge.Child.GetComponent<ConfigurableJoint>();
+            if (cj)
             {
-                hingeJoints.Add(hj);
+                cjoints.Add(cj);
             }
-
-            HingeJointController hjc = utHinge.Child.GetComponent<HingeJointController>();
-            if (hjc)
-            {
-                hingeJointControllers.Add(hjc);
-            }
+            
+            //jointController.SetUpJoint(cj);
         }
+        
+
     }
 
     public unsafe override void OnEpisodeBegin() {
@@ -52,8 +67,10 @@ public class JibotAgent : UTAgent
 
         foreach (var uth in utHinges)
         {
-            data.resetJoint(uth);
+            data.ResetJoint(uth);
         }
+
+        Debug.Log("Reset");
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -61,10 +78,10 @@ public class JibotAgent : UTAgent
         
         if (UTrainWindow.IsPhysX || UTrainWindow.IsDamps)
         {
-            foreach (var hj in hingeJoints)
+            foreach (var cj in cjoints)
             {
-                sensor.AddObservation(hj.angle);
-                sensor.AddObservation(hj.velocity);
+                sensor.AddObservation(cj.targetAngularVelocity);
+                sensor.AddObservation(cj.targetVelocity);
             }
         }
     }
@@ -75,33 +92,21 @@ public class JibotAgent : UTAgent
         // Action
         if (UTrainWindow.IsPhysX)
         {
-            var vectorAction = actions.ContinuousActions;
-            
-            float angleRange = 120f;
-            
-            for (int i = 0; i < hingeJointControllers.Count; i++)
-            {
-                //hingeJointControllers[i].TargetAngle = 0f;
-                //hingeJointControllers[i].TargetAngle = Mathf.Clamp(vectorAction[i], -1f, 1f) * angleRange;
-            }
-            
+            var continuousActions = actions.ContinuousActions;
+
+            /*
+            float factor = 15000f;
+            int i = 0;
+            rb1.AddTorque(new Vector3(Mathf.Clamp(continuousActions[0], -1f, 1f), 0, 0) * factor);
+            rb2.AddTorque(new Vector3(0, Mathf.Clamp(continuousActions[1], -1f, 1f), 0) * factor);
+            rb3.AddTorque(new Vector3(0, Mathf.Clamp(continuousActions[2], -1f, 1f), 0) * factor);
+            rb4.AddTorque(new Vector3(0, Mathf.Clamp(continuousActions[3], -1f, 1f), 0) * factor);
+            rb5.AddTorque(new Vector3(Mathf.Clamp(continuousActions[4], -1f, 1f), 0) * factor);
+            rb6.AddTorque(new Vector3(0, 0, Mathf.Clamp(continuousActions[5], -1f, 1f)) * factor);
+            rb7.AddTorque(new Vector3(0, 0, Mathf.Clamp(-continuousActions[5], -1f, 1f)) * factor);
+            */
         }
         
         // Reward
-        /*
-        float dis = Vector3.Distance(goal.transform.position, effector.transform.position);
-        if (dis < 0.5f)
-        {
-            SetReward(1.0f);
-            Debug.Log("End Episode: Success");
-            EndEpisode();
-        }
-        else if(dis > 3.0f)
-        {
-            SetReward(-0.2f);
-            Debug.Log("End Episode: Out of Range");
-            EndEpisode();
-        }
-        */
     }
 }
