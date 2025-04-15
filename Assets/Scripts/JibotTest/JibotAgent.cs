@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Cartpole;
 using UnityEngine;
 using Unity.MLAgents;
 using Unity.MLAgents.Actuators;
@@ -38,6 +39,7 @@ public class JibotAgent : UTAgent
     [SerializeField]
     public GameObject target;
     
+    public CartpoleActuator actuator;
 
     private void Awake()
     {
@@ -60,6 +62,10 @@ public class JibotAgent : UTAgent
 
     }
 
+    public override void Initialize() {
+        base.Initialize();
+    }
+    
     public unsafe override void OnEpisodeBegin() {
         base.OnEpisodeBegin();
         
@@ -70,7 +76,7 @@ public class JibotAgent : UTAgent
             data.ResetJoint(uth);
         }
 
-        Debug.Log("Reset");
+        //Debug.Log("Reset");
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -88,7 +94,7 @@ public class JibotAgent : UTAgent
 
     public override void OnActionReceived(ActionBuffers actions) {
         base.OnActionReceived(actions);
-        
+
         // Action
         if (UTrainWindow.IsPhysX)
         {

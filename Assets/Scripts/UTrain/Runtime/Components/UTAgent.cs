@@ -18,6 +18,10 @@ public class UTAgent : Agent
  
     }
 
+    public override void Initialize() {
+        base.Initialize();
+    }
+    
     public override void CollectObservations(VectorSensor sensor) {
         base.CollectObservations(sensor);
         // If you wanted to collect observations from the Agent class, you can add them one by one to the sensor
@@ -26,7 +30,6 @@ public class UTAgent : Agent
 
     public override void OnActionReceived(ActionBuffers actions) {
         // You could process your agent's actions directly here, and assign reward as well
-        base.OnActionReceived(actions);
-
+        // base.OnActionReceived(actions);
     }
 }
