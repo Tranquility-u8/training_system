@@ -41,30 +41,39 @@ public class JibotAgent : UTAgent
     public Transform target;
     private TargetSensor ts;
 
-    public float lastTargetZ;
+    private float lastTargetZ;
+    private float episodeTimer;
     
     [SerializeField]
-    [Range(0f, 100f)]
+    [Range(10f, 120f)]
+    private float maxEpisodeTime = 25f;
+    
+    [SerializeField]
+    [Range(0f, 10f)]
     private float f_reach = 2f;
     
     [SerializeField]
-    [Range(0f, 100f)]
+    [Range(0f, 10f)]
+    private float f_near = 5f;
+    
+    [SerializeField]
+    [Range(0f, 10f)]
     private float f_grasp_1 = 2f;
     
     [SerializeField]
-    [Range(0f, 100f)]
+    [Range(0f, 10f)]
     private float f_grasp_2 = 1f;
     
     [SerializeField]
-    [Range(0f, 100f)]
+    [Range(0f, 10f)]
     private float f_grasp_3 = 1f;
     
     [SerializeField]
-    [Range(0f, 100f)]
+    [Range(0f, 10f)]
     private float f_grasp_4 = 2f;
     
     [SerializeField]
-    [Range(0f, 100f)]
+    [Range(0f, 20f)]
     private float f_lift = 10f;
     
     private void Awake()
@@ -93,18 +102,29 @@ public class JibotAgent : UTAgent
     public override void Initialize() {
         base.Initialize();
     }
-    
+
+    private void Update()
+    {
+        episodeTimer += Time.fixedDeltaTime;
+        
+        // Test
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            EndEpisode();
+        }
+    }
+
     public unsafe override void OnEpisodeBegin() {
+        
         base.OnEpisodeBegin();
+        episodeTimer = 0f;
         
         UTData data = MjScene.Instance.getUTData();
 
         foreach (var uth in utHinges)
         {
-            data.ResetJoint(uth);
+            data.ResetHingeJoint(uth);
         }
-
-        //Debug.Log("Reset");
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -130,12 +150,20 @@ public class JibotAgent : UTAgent
             
             sensor.AddObservation(ts.transform.position);
             sensor.AddObservation(ts.transform.rotation);
+
+            UTData data = MjScene.Instance.getUTData();
+            foreach (var hinge in utHinges)
+            {
+                sensor.AddObservation(data.getJointVel(hinge));
+            }
+            
         }
     }
 
     public override void OnActionReceived(ActionBuffers actions) {
-        base.OnActionReceived(actions);
 
+        base.OnActionReceived(actions);
+        
         // Action
         if (UTrainWindow.IsPhysX)
         {
@@ -162,7 +190,7 @@ public class JibotAgent : UTAgent
 
         float dis = Vector3.Distance(target.position, effector.position);
         
-        R_reach = -f_reach * Mathf.Abs(dis - 0.2f) * Mathf.Abs(dis - 0.2f)  + (ts.IsNear ? 5f : 0f);
+        R_reach = -f_reach * Mathf.Abs(dis - 0.2f) * Mathf.Abs(dis - 0.2f)  + (ts.IsNear ? f_near : 0f);
 
         R_grasp = ts.IsNear ? (es.IsClamped ? f_grasp_1 : -f_grasp_2) : (es.IsClamped ? -f_grasp_3 : f_grasp_4);
         
@@ -170,14 +198,22 @@ public class JibotAgent : UTAgent
         
         R = R_reach + R_grasp + R_lift;
         
-        Debug.Log($"Reward: {R} = {R_reach} + {R_grasp} + {R_lift}" );
+        //Debug.Log($"Reward: {R} = {R_reach} + {R_grasp} + {R_lift}" );
         
-        SetReward(R);
+        AddReward(R);
+        
         if (dis > 6)
         {
-            Debug.Log("End Episode");
+            Debug.Log("End Episode: Out of Range");
             EndEpisode();
         }
+        
+        if (episodeTimer >= maxEpisodeTime)
+        {
+            Debug.Log("End Episode: Out of Time");
+            EndEpisode();
+        }
+        
         lastTargetZ = target.position.z;
     }
 }

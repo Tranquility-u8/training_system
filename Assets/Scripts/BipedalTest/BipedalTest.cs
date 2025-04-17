@@ -61,7 +61,7 @@ public class BipedalAgent : UTAgent
             UTData data = MjScene.Instance.getUTData();
             foreach (var uth in utHinges)
             {
-                data.ResetJoint(uth);
+                data.ResetHingeJoint(uth);
             }
         }
     }
@@ -73,7 +73,7 @@ public class BipedalAgent : UTAgent
 
         foreach (var uth in utHinges)
         {
-            data.ResetJoint(uth);
+            data.ResetHingeJoint(uth);
         }
         
         lastBodyPosition = body.transform.position;

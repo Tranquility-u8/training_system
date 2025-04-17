@@ -49,7 +49,7 @@ public unsafe class UTData
         dampsData = data;
     }
 
-    public void ResetJoint(UTHingeJoint joint)
+    public void ResetHingeJoint(UTHingeJoint joint)
     {
         switch (UTrainWindow.engineType)
         {
@@ -62,7 +62,25 @@ public unsafe class UTData
                 setJointAcc(joint, 0);
                 break;
             default:
-                //Debug.LogWarning("engineType not supported");
+                Debug.LogWarning("engineType not supported");
+                break;
+        }
+    }
+
+    public void ResetFreeJoint(MjFreeJoint joint)
+    {
+        switch (UTrainWindow.engineType)
+        {
+            case "PhysX":
+                Debug.LogWarning("engineType not supported");
+                break;
+            case "MuJoCo":
+                mjData->qpos[joint.QposAddress] = 0f;
+                mjData->qvel[joint.DofAddress] = 0f;
+                mjData->qacc[joint.DofAddress] = 0f;
+                break;
+            default:
+                Debug.LogWarning("engineType not supported");
                 break;
         }
     }
@@ -98,6 +116,22 @@ public unsafe class UTData
                 break;
         }
     }
+
+    public float getJointVel(UTHingeJoint joint)
+    {
+        switch (UTrainWindow.engineType)
+        {
+            case "PhysX":
+                return joint.Child.GetComponent<Rigidbody>().velocity.z;
+            case "MuJoCo":
+                return (float)mjData->qvel[joint.DofAddress];
+                break;
+            default:
+                Debug.LogWarning("engineType not supported");
+                break;
+        }
+        return 0.0f;
+    }
     
     public void setJointAcc(UTHingeJoint joint, double val)
     {
@@ -109,7 +143,7 @@ public unsafe class UTData
                 mjData->qacc[joint.DofAddress] = val;
                 break;
             default:
-                //Debug.LogWarning("engineType not supported");
+                Debug.LogWarning("engineType not supported");
                 break;
         }
     }
