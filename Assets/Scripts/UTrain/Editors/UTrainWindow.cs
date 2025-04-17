@@ -445,6 +445,7 @@ cd D:\Unity\Project\training_system\Train
 mlagents-learn {runId}.yaml --run-id MjReacher_20250417220411 --torch-device cuda:0 --resume
 pause  
 ";  
+        //g = 0 MjReacher_20250417220411
         File.WriteAllText(batFilePath, batContent);  
     
         ProcessStartInfo startInfo = new ProcessStartInfo  
