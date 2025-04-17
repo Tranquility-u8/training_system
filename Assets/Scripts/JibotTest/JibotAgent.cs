@@ -16,7 +16,7 @@ public class JibotAgent : UTAgent
     List<ConfigurableJoint> cjoints = new List<ConfigurableJoint>();
 
     [SerializeField] 
-    private MjFreeJoint freeJoint;
+    private UTFreeJoint freeJoint;
     
     [SerializeField]
     UTJointController jointController;

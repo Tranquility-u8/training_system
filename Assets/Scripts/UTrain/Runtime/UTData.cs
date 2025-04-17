@@ -67,7 +67,7 @@ public unsafe class UTData
         }
     }
 
-    public void ResetFreeJoint(MjFreeJoint joint)
+    public void ResetFreeJoint(UTFreeJoint joint)
     {
         switch (UTrainWindow.engineType)
         {
@@ -75,9 +75,18 @@ public unsafe class UTData
                 Debug.LogWarning("engineType not supported");
                 break;
             case "MuJoCo":
-                mjData->qpos[joint.QposAddress] = 0f;
+                mjData->qpos[joint.QposAddress] = joint.ParentPos.x; //x
+                mjData->qpos[joint.QposAddress + 1] = joint.ParentPos.z; //z
+                mjData->qpos[joint.QposAddress + 2] = joint.ParentPos.y; //y
+                mjData->qpos[joint.QposAddress + 3] = 0f; 
+                mjData->qpos[joint.QposAddress + 4] = 0f;
+                mjData->qpos[joint.QposAddress + 5] = 0f;
                 mjData->qvel[joint.DofAddress] = 0f;
+                mjData->qvel[joint.DofAddress + 1] = 0f;
+                mjData->qvel[joint.DofAddress + 2] = 0f;
                 mjData->qacc[joint.DofAddress] = 0f;
+                mjData->qacc[joint.DofAddress + 1] = 0f;
+                mjData->qacc[joint.DofAddress + 2] = 0f;
                 break;
             default:
                 Debug.LogWarning("engineType not supported");
@@ -125,7 +134,6 @@ public unsafe class UTData
                 return joint.Child.GetComponent<Rigidbody>().velocity.z;
             case "MuJoCo":
                 return (float)mjData->qvel[joint.DofAddress];
-                break;
             default:
                 Debug.LogWarning("engineType not supported");
                 break;
