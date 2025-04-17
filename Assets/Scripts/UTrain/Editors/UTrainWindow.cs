@@ -59,7 +59,9 @@ public class UTrainWindow : EditorWindow
     [Header("Reward Signals")]
     private float gamma = 0.995f;
     private float strength = 1.0f;
-
+    
+    private string resumeTrainName = "default";
+    
     [MenuItem("Tools/UTrain")]
     public static void ShowWindow()
     {
@@ -328,9 +330,11 @@ public class UTrainWindow : EditorWindow
         }
         
         GUILayout.Space(20);
+        resumeTrainName = EditorGUILayout.TextField("Train Name", resumeTrainName);
+        
         if (GUILayout.Button("Resume Training"))  
         {  
-            RunResumeBatch(selectedBehaviorName);  
+            RunResumeBatch(selectedBehaviorName, resumeTrainName);  
         }  
     }
     
@@ -433,7 +437,7 @@ pause
         }  
     }
 
-    private void RunResumeBatch(string runId)  
+    private void RunResumeBatch(string runId, string trainName)  
     {  
         string batFilePath = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Train/train.bat");;  
         
@@ -442,10 +446,11 @@ pause
 @echo off  
 call conda activate ml  
 cd D:\Unity\Project\training_system\Train  
-mlagents-learn {runId}.yaml --run-id MjReacher_20250417220411 --torch-device cuda:0 --resume
+mlagents-learn {runId}.yaml --run-id {trainName} --torch-device cuda:0 --resume
 pause  
 ";  
         //g = 0 MjReacher_20250417220411
+        //g = -0.00981 MjReacher_20250417233427
         File.WriteAllText(batFilePath, batContent);  
     
         ProcessStartInfo startInfo = new ProcessStartInfo  
