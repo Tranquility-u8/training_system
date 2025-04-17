@@ -11,6 +11,7 @@ using Unity.MLAgents.Policies;
 
 public class JibotAgent : UTAgent
 {
+    [Header("MuJoCo Settings")]
     [SerializeField]
     List<UTHingeJoint> utHinges;
     List<ConfigurableJoint> cjoints = new List<ConfigurableJoint>();
@@ -18,6 +19,15 @@ public class JibotAgent : UTAgent
     [SerializeField] 
     private UTFreeJoint freeJoint;
     
+    [SerializeField]
+    public Transform effector;
+    private EffectorSensor es;
+    
+    [SerializeField]
+    public Transform target;
+    private TargetSensor ts;
+    
+    [Header("Unity Settings")]
     [SerializeField]
     UTJointController jointController;
     
@@ -36,16 +46,23 @@ public class JibotAgent : UTAgent
     [SerializeField]
     Rigidbody rb7;
     
-    [SerializeField]
-    public Transform effector;
-    private EffectorSensor es;
+    private float lastTargetZ;
+
+    
+    [Header("Reward")]
+    private float episodeTimer;
+    private int actionNum = 0;
+    
+    private float R = 0f;
+    private float R_reach = 0f;
+    private float R_grasp = 0f;
+    private float R_lift = 0f;
     
     [SerializeField]
-    public Transform target;
-    private TargetSensor ts;
-
-    private float lastTargetZ;
-    private float episodeTimer;
+    private bool IsLogReward = false;
+    
+    [SerializeField]
+    private int LogRewardInterval = 1000;
     
     [SerializeField]
     [Range(10f, 120f)]
@@ -58,6 +75,10 @@ public class JibotAgent : UTAgent
     [SerializeField]
     [Range(0f, 10f)]
     private float f_near = 5f;
+    
+    [SerializeField]
+    [Range(0f, 1.0f)]
+    private float f_near_radius = 0.2f;
     
     [SerializeField]
     [Range(0f, 10f)]
@@ -167,6 +188,7 @@ public class JibotAgent : UTAgent
     public override void OnActionReceived(ActionBuffers actions) {
 
         base.OnActionReceived(actions);
+        actionNum++;
         
         // Action
         if (UTrainWindow.IsPhysX)
@@ -187,14 +209,9 @@ public class JibotAgent : UTAgent
         }
         
         // Reward
-        float R = 0f;
-        float R_reach = 0f;
-        float R_grasp = 0f;
-        float R_lift = 0f;
-
         float dis = Vector3.Distance(target.position, effector.position);
         
-        R_reach = -f_reach * Mathf.Abs(dis - 0.2f) * Mathf.Abs(dis - 0.2f)  + (ts.IsNear ? f_near : 0f);
+        R_reach = -f_reach * Mathf.Abs(dis - f_near_radius) + (ts.IsNear ? f_near : 0f);
 
         R_grasp = ts.IsNear ? (es.IsClamped ? f_grasp_1 : -f_grasp_2) : (es.IsClamped ? -f_grasp_3 : f_grasp_4);
         
@@ -202,14 +219,20 @@ public class JibotAgent : UTAgent
         
         R = R_reach + R_grasp + R_lift;
         
-        //Debug.Log($"Reward: {R} = {R_reach} + {R_grasp} + {R_lift}" );
-        
         AddReward(R);
+        
+        if (actionNum >= LogRewardInterval && IsLogReward)
+        {
+            Debug.Log($"Reward: {R} = {R_reach} + {R_grasp} + {R_lift}" );
+            actionNum = 0;
+        }
+        
+        lastTargetZ = target.position.z;
         
         if (dis > 6)
         {
             Debug.Log("End Episode: Out of Range");
-            //EndEpisode();
+            EndEpisode();
         }
         
         if (episodeTimer >= maxEpisodeTime)
@@ -218,6 +241,6 @@ public class JibotAgent : UTAgent
             EndEpisode();
         }
         
-        lastTargetZ = target.position.z;
+
     }
 }

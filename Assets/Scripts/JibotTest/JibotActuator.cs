@@ -44,13 +44,13 @@ public class JibotActuator : ActuatorComponent {
 
         // The agent distributes its actions among all of its IActuators, each receiving a segment based on their ActionSpecs.
         public void OnActionReceived(ActionBuffers actionBuffers) {
-            wrappedActuators[0].Control = actionBuffers.ContinuousActions[0] * 20.0f;
-            wrappedActuators[1].Control = actionBuffers.ContinuousActions[1] * 250.0f;
-            wrappedActuators[2].Control = actionBuffers.ContinuousActions[2] * 250.0f;
-            wrappedActuators[3].Control = actionBuffers.ContinuousActions[3] * 250.0f;
-            wrappedActuators[4].Control = actionBuffers.ContinuousActions[4] * 5.0f;
-            wrappedActuators[5].Control = actionBuffers.ContinuousActions[5] * 250.0f;
-            wrappedActuators[6].Control = -actionBuffers.ContinuousActions[5] * 250.0f;
+            wrappedActuators[0].Control = actionBuffers.ContinuousActions[0];
+            wrappedActuators[1].Control = actionBuffers.ContinuousActions[1];
+            wrappedActuators[2].Control = actionBuffers.ContinuousActions[2];
+            wrappedActuators[3].Control = actionBuffers.ContinuousActions[3];
+            wrappedActuators[4].Control = actionBuffers.ContinuousActions[4];
+            wrappedActuators[5].Control = actionBuffers.ContinuousActions[5];
+            wrappedActuators[6].Control = -actionBuffers.ContinuousActions[5];
         }
 
 

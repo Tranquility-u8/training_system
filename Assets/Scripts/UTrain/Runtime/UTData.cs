@@ -84,6 +84,9 @@ public unsafe class UTData
                 mjData->qvel[joint.DofAddress] = 0f;
                 mjData->qvel[joint.DofAddress + 1] = 0f;
                 mjData->qvel[joint.DofAddress + 2] = 0f;
+                mjData->qvel[joint.DofAddress + 3] = 0f;
+                mjData->qvel[joint.DofAddress + 4] = 0f;
+                mjData->qvel[joint.DofAddress + 5] = 0f;
                 mjData->qacc[joint.DofAddress] = 0f;
                 mjData->qacc[joint.DofAddress + 1] = 0f;
                 mjData->qacc[joint.DofAddress + 2] = 0f;
