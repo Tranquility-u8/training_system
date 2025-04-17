@@ -4,7 +4,9 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Base01
+  - Target
+  - Effector
+  - Claw
   layers:
   - Default
   - TransparentFX

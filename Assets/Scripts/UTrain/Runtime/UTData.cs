@@ -57,7 +57,9 @@ public unsafe class UTData
                 joint.reset();
                 break;
             case "MuJoCo":
-                //Debug.LogWarning("engineType not supported");
+                setJointPos(joint, 0);
+                setJointVel(joint, 0);
+                setJointAcc(joint, 0);
                 break;
             default:
                 //Debug.LogWarning("engineType not supported");

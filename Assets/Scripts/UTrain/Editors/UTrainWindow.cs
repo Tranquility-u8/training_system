@@ -322,9 +322,15 @@ public class UTrainWindow : EditorWindow
     {
         GUILayout.Space(20);
         GUILayout.Label("ML-Agent Backend", EditorStyles.boldLabel);
-        if (GUILayout.Button("Run Backend"))  
+        if (GUILayout.Button("Start Training"))  
         {  
             RunTrainBatch(selectedBehaviorName);  
+        }
+        
+        GUILayout.Space(20);
+        if (GUILayout.Button("Resume Training"))  
+        {  
+            RunResumeBatch(selectedBehaviorName);  
         }  
     }
     
@@ -427,6 +433,40 @@ pause
         }  
     }
 
+    private void RunResumeBatch(string runId)  
+    {  
+        string batFilePath = Path.Combine(Path.GetDirectoryName(Application.dataPath), "Train/train.bat");;  
+        
+        string timeStamp = DateTime.Now.ToString("yyyyMMddHHmmss");
+        string batContent = $@"  
+@echo off  
+call conda activate ml  
+cd D:\Unity\Project\training_system\Train  
+mlagents-learn {runId}.yaml --run-id MjReacher_20250417164820 --torch-device cuda:0 --resume
+pause  
+";  
+        File.WriteAllText(batFilePath, batContent);  
+    
+        ProcessStartInfo startInfo = new ProcessStartInfo  
+        {  
+            FileName = batFilePath,  
+            UseShellExecute = true,  
+            RedirectStandardOutput = false,  
+            CreateNoWindow = false  
+        };  
+
+        try  
+        {  
+            Process process = Process.Start(startInfo);  
+            // process.WaitForExit();  
+        }  
+        catch (System.Exception ex)  
+        {  
+            UnityEngine.Debug.LogError("Failed to run batch file: " + ex.Message);  
+        }  
+    }
+
+    
     public void SetEngine(string engineName) {
         UpdateSceneComponents();
     }

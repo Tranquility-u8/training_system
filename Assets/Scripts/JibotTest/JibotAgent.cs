@@ -34,18 +34,44 @@ public class JibotAgent : UTAgent
     Rigidbody rb7;
     
     [SerializeField]
-    public GameObject effector;
+    public Transform effector;
+    private EffectorSensor es;
     
     [SerializeField]
-    public GameObject target;
-    
-    public CartpoleActuator actuator;
+    public Transform target;
+    private TargetSensor ts;
 
+    public float lastTargetZ;
+    
+    [SerializeField]
+    [Range(0f, 100f)]
+    private float f_reach = 2f;
+    
+    [SerializeField]
+    [Range(0f, 100f)]
+    private float f_grasp_1 = 2f;
+    
+    [SerializeField]
+    [Range(0f, 100f)]
+    private float f_grasp_2 = 1f;
+    
+    [SerializeField]
+    [Range(0f, 100f)]
+    private float f_grasp_3 = 1f;
+    
+    [SerializeField]
+    [Range(0f, 100f)]
+    private float f_grasp_4 = 2f;
+    
+    [SerializeField]
+    [Range(0f, 100f)]
+    private float f_lift = 10f;
+    
     private void Awake()
     {
         if (UTrainWindow.IsMuJoCo)
         {
-            this.GetComponent<BehaviorParameters>().BrainParameters.VectorObservationSize = 0;
+            //this.GetComponent<BehaviorParameters>().BrainParameters.VectorObservationSize = 0;
         }
 
         foreach (var utHinge in utHinges)
@@ -59,7 +85,9 @@ public class JibotAgent : UTAgent
             //jointController.SetUpJoint(cj);
         }
         
-
+        ts = target.GetComponent<TargetSensor>();
+        es = effector.GetComponent<EffectorSensor>();
+        lastTargetZ = target.position.z;
     }
 
     public override void Initialize() {
@@ -90,6 +118,19 @@ public class JibotAgent : UTAgent
                 sensor.AddObservation(cj.targetVelocity);
             }
         }
+
+        if (UTrainWindow.IsMuJoCo)
+        {
+            MjGeom[] geoms = FindObjectsOfType<MjGeom>();
+            foreach (var geom in geoms)
+            {
+                Transform geomTransform = geom.transform;
+                sensor.AddObservation(geomTransform.rotation);
+            }
+            
+            sensor.AddObservation(ts.transform.position);
+            sensor.AddObservation(ts.transform.rotation);
+        }
     }
 
     public override void OnActionReceived(ActionBuffers actions) {
@@ -114,5 +155,29 @@ public class JibotAgent : UTAgent
         }
         
         // Reward
+        float R = 0f;
+        float R_reach = 0f;
+        float R_grasp = 0f;
+        float R_lift = 0f;
+
+        float dis = Vector3.Distance(target.position, effector.position);
+        
+        R_reach = -f_reach * Mathf.Abs(dis - 0.2f) * Mathf.Abs(dis - 0.2f)  + (ts.IsNear ? 5f : 0f);
+
+        R_grasp = ts.IsNear ? (es.IsClamped ? f_grasp_1 : -f_grasp_2) : (es.IsClamped ? -f_grasp_3 : f_grasp_4);
+        
+        R_lift = f_lift * (target.position.z - lastTargetZ);
+        
+        R = R_reach + R_grasp + R_lift;
+        
+        Debug.Log($"Reward: {R} = {R_reach} + {R_grasp} + {R_lift}" );
+        
+        SetReward(R);
+        if (dis > 6)
+        {
+            Debug.Log("End Episode");
+            EndEpisode();
+        }
+        lastTargetZ = target.position.z;
     }
 }
