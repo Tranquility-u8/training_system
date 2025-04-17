@@ -214,8 +214,9 @@ public class JibotAgent : UTAgent
         R_reach = -f_reach * Mathf.Abs(dis - f_near_radius) + (ts.IsNear ? f_near : 0f);
 
         R_grasp = ts.IsNear ? (es.IsClamped ? f_grasp_1 : -f_grasp_2) : (es.IsClamped ? -f_grasp_3 : f_grasp_4);
-        
-        R_lift = f_lift * (target.position.y - lastTargetY) * (ts.IsNear ? 1.0f : -0.5f);
+
+        float lift = target.position.y - lastTargetY;
+        R_lift = lift >= 0 ? (f_lift * (lift) * (ts.IsNear ? 1.0f : -0.25f)) : -0.5f;
         
         R = R_reach + R_grasp + R_lift;
         
