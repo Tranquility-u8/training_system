@@ -14,6 +14,9 @@ public class JibotAgent : UTAgent
     [SerializeField]
     List<UTHingeJoint> utHinges;
     List<ConfigurableJoint> cjoints = new List<ConfigurableJoint>();
+
+    [SerializeField] 
+    private MjFreeJoint freeJoint;
     
     [SerializeField]
     UTJointController jointController;
@@ -125,6 +128,7 @@ public class JibotAgent : UTAgent
         {
             data.ResetHingeJoint(uth);
         }
+        data.ResetFreeJoint(freeJoint);
     }
 
     public override void CollectObservations(VectorSensor sensor) {
@@ -205,7 +209,7 @@ public class JibotAgent : UTAgent
         if (dis > 6)
         {
             Debug.Log("End Episode: Out of Range");
-            EndEpisode();
+            //EndEpisode();
         }
         
         if (episodeTimer >= maxEpisodeTime)
