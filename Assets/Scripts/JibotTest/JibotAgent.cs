@@ -46,7 +46,7 @@ public class JibotAgent : UTAgent
     [SerializeField]
     Rigidbody rb7;
     
-    private float lastTargetZ;
+    private float lastTargetY;
 
     
     [Header("Reward")]
@@ -120,7 +120,7 @@ public class JibotAgent : UTAgent
         
         ts = target.GetComponent<TargetSensor>();
         es = effector.GetComponent<EffectorSensor>();
-        lastTargetZ = target.position.z;
+        lastTargetY = target.position.y;
     }
 
     public override void Initialize() {
@@ -215,7 +215,7 @@ public class JibotAgent : UTAgent
 
         R_grasp = ts.IsNear ? (es.IsClamped ? f_grasp_1 : -f_grasp_2) : (es.IsClamped ? -f_grasp_3 : f_grasp_4);
         
-        R_lift = f_lift * (target.position.z - lastTargetZ);
+        R_lift = f_lift * (target.position.y - lastTargetY) * (ts.IsNear ? 1.0f : -0.5f);
         
         R = R_reach + R_grasp + R_lift;
         
@@ -227,7 +227,7 @@ public class JibotAgent : UTAgent
             actionNum = 0;
         }
         
-        lastTargetZ = target.position.z;
+        lastTargetY = target.position.y;
         
         if (dis > 6)
         {

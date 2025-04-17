@@ -442,7 +442,7 @@ pause
 @echo off  
 call conda activate ml  
 cd D:\Unity\Project\training_system\Train  
-mlagents-learn {runId}.yaml --run-id MjReacher_20250417164820 --torch-device cuda:0 --resume
+mlagents-learn {runId}.yaml --run-id MjReacher_20250417220411 --torch-device cuda:0 --resume
 pause  
 ";  
         File.WriteAllText(batFilePath, batContent);  
