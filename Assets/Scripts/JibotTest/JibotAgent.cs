@@ -238,8 +238,8 @@ public class JibotAgent : UTAgent
         
         if (episodeTimer >= maxEpisodeTime)
         {
-            Debug.Log("End Episode: Out of Time");
-            EndEpisode();
+            //Debug.Log("End Episode: Out of Time");
+            //EndEpisode();
         }
         
 
