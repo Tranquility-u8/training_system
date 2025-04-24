@@ -24,6 +24,19 @@ public class JibotAgent_x : UTAgent
     [SerializeField]
     private GrabberController gc;
     private float lastTargetY;
+
+    [Header("Action")] 
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float pFactor = 1.0f;
+    
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float rFactor = 1.0f;
+    
+    [SerializeField]
+    [Range(0f, 1f)]
+    private float aFactor = 1.0f;
     
     [Header("Reward")]
     private float episodeTimer;
@@ -121,9 +134,9 @@ public class JibotAgent_x : UTAgent
         actionNum++;
         
         // Action
-        gc.UpdatePosition(1.0f, actions.ContinuousActions[0], actions.ContinuousActions[1], actions.ContinuousActions[2]);
-        gc.UpdateRotation(1.0f, actions.ContinuousActions[3], actions.ContinuousActions[4], actions.ContinuousActions[5]);
-        gc.UpdateAngle(1.0f, actions.ContinuousActions[6]);
+        gc.UpdatePosition(pFactor, actions.ContinuousActions[0], actions.ContinuousActions[1], actions.ContinuousActions[2]);
+        gc.UpdateRotation(rFactor, actions.ContinuousActions[3], actions.ContinuousActions[4], actions.ContinuousActions[5]);
+        gc.UpdateAngle(aFactor, actions.ContinuousActions[6]);
         
         // Reward
         float dis = Vector3.Distance(target.position, effector.position);
