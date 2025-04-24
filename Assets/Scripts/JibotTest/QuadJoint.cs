@@ -19,62 +19,54 @@ public class QuadJoint : MonoBehaviour
     
     void Update()
     {
-        // 获取目标线段信息
-        Vector3 target1Pos = target1.position;
-        Vector3 target2Pos = target2.position;
-        Vector3 midTarget = (target1Pos + target2Pos) * 0.5f;
-        Vector3 dirTarget = target2Pos - target1Pos;
+        // 获取父物体坐标系下的目标点位置
+        Transform parent = transform.parent;
+        Vector3 t1Local = parent ? parent.InverseTransformPoint(target1.position) : target1.position;
+        Vector3 t2Local = parent ? parent.InverseTransformPoint(target2.position) : target2.position;
 
-        // 获取本地线段信息
+        // 计算目标线段参数（在父物体坐标系）
+        Vector3 midTarget = (t1Local + t2Local) * 0.5f;
+        Vector3 dirTarget = t2Local - t1Local;
+
+        // 获取本地线段参数
         Vector3 e1Local = end1.localPosition;
         Vector3 e2Local = end2.localPosition;
         Vector3 deltaLocal = e2Local - e1Local;
 
+        // 仅使用YZ平面分量
         float dy = deltaLocal.y;
         float dz = deltaLocal.z;
         float ty = dirTarget.y;
         float tz = dirTarget.z;
 
         // 处理零向量情况
-        if (Mathf.Approximately(dy * dy + dz * dz, 0f) || 
-            Mathf.Approximately(ty * ty + tz * tz, 0f)) return;
+        if (Mathf.Approximately(dy*dy + dz*dz, 0f) || 
+            Mathf.Approximately(ty*ty + tz*tz, 0f)) return;
 
-        // 计算需要的旋转角度
-        float beta = Mathf.Atan2(dz, dy);
-        float alpha = Mathf.Atan2(tz, ty);
-        float theta = alpha - beta;
-        float thetaDegrees = theta * Mathf.Rad2Deg;
+        // 计算旋转角度（YZ平面）
+        float currentAngle = Mathf.Atan2(dz, dy);
+        float targetAngle = Mathf.Atan2(tz, ty);
+        float angleDelta = targetAngle - currentAngle;
+        float angleDegrees = angleDelta * Mathf.Rad2Deg;
 
-        // 创建新的旋转（绕X轴）
-        Quaternion newRotation = Quaternion.AngleAxis(thetaDegrees, Vector3.right);
+        // 创建绕X轴的本地旋转
+        Quaternion newRotation = Quaternion.AngleAxis(angleDegrees, Vector3.right);
 
-        // 计算本地中点并旋转
+        // 计算旋转后的本地中点偏移
         Vector3 midLocal = (e1Local + e2Local) * 0.5f;
         Vector3 rotatedMidLocal = newRotation * midLocal;
 
-        // 计算需要的新位置
-        Vector3 desiredWorldPosition = midTarget - rotatedMidLocal;
+        // 计算需要的本地位置调整
+        Vector3 requiredLocalPos = midTarget - rotatedMidLocal;
 
-        // 转换为本地坐标并保持X轴不变
-        if (transform.parent != null)
-        {
-            Vector3 newLocalPosition = transform.parent.InverseTransformPoint(desiredWorldPosition);
-            transform.localPosition = new Vector3(
-                transform.localPosition.x, 
-                newLocalPosition.y, 
-                newLocalPosition.z
-            );
-        }
-        else
-        {
-            transform.position = new Vector3(
-                transform.position.x,
-                desiredWorldPosition.y,
-                desiredWorldPosition.z
-            );
-        }
+        // 应用本地变换（保持x轴不变）
+        transform.localPosition = new Vector3(
+            transform.localPosition.x,
+            requiredLocalPos.y,
+            requiredLocalPos.z
+        );
 
-        // 应用新的旋转
+        // 应用本地旋转
         transform.localRotation = newRotation;
     }
 }

@@ -1,9 +1,15 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class QuadrilateralController : MonoBehaviour
+public class QuadrilateralUpdater : MonoBehaviour
 {
     public Transform pointA, pointB, pointC, pointD;
-    public float value;
+    
+    [SerializeField]
+    private bool IsMirror = true;
+    
+    [SerializeField]
+    private GrabberController grabberController;
 
     void Update()
     {
@@ -20,7 +26,9 @@ public class QuadrilateralController : MonoBehaviour
         }
 
         Vector3 adDir = adVector.normalized;
-        float theta = value;
+        float theta = grabberController.Value;
+        if(IsMirror)
+            theta = -theta;
         Quaternion rot = Quaternion.Euler(theta, 0, 0);
         Vector3 abDir = rot * adDir;
         Vector3 B = A + abDir * L;
