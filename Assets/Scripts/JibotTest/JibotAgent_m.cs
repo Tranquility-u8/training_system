@@ -9,7 +9,7 @@ using Unity.MLAgents.Sensors;
 using Mujoco;
 using Unity.MLAgents.Policies;
 
-public class JibotAgent : UTAgent
+public class JibotAgent_m : UTAgent
 {
     [Header("MuJoCo Settings")]
     [SerializeField]
@@ -26,25 +26,6 @@ public class JibotAgent : UTAgent
     [SerializeField]
     public Transform target;
     private TargetSensor ts;
-    
-    [Header("Unity Settings")]
-    [SerializeField]
-    UTJointController jointController;
-    
-    [SerializeField]
-    Rigidbody rb1;
-    [SerializeField]
-    Rigidbody rb2;
-    [SerializeField]
-    Rigidbody rb3;
-    [SerializeField]
-    Rigidbody rb4;
-    [SerializeField]
-    Rigidbody rb5;
-    [SerializeField]
-    Rigidbody rb6;
-    [SerializeField]
-    Rigidbody rb7;
     
     private float lastTargetY;
 
@@ -114,8 +95,6 @@ public class JibotAgent : UTAgent
             {
                 cjoints.Add(cj);
             }
-            
-            //jointController.SetUpJoint(cj);
         }
         
         ts = target.GetComponent<TargetSensor>();
@@ -154,34 +133,21 @@ public class JibotAgent : UTAgent
 
     public override void CollectObservations(VectorSensor sensor) {
         base.CollectObservations(sensor);
-        
-        if (UTrainWindow.IsPhysX || UTrainWindow.IsDamps)
+
+        MjGeom[] geoms = FindObjectsOfType<MjGeom>();
+        foreach (var geom in geoms)
         {
-            foreach (var cj in cjoints)
-            {
-                sensor.AddObservation(cj.targetAngularVelocity);
-                sensor.AddObservation(cj.targetVelocity);
-            }
+            Transform geomTransform = geom.transform;
+            sensor.AddObservation(geomTransform.rotation);
         }
+        
+        sensor.AddObservation(ts.transform.position);
+        sensor.AddObservation(ts.transform.rotation);
 
-        if (UTrainWindow.IsMuJoCo)
+        UTData data = MjScene.Instance.getUTData();
+        foreach (var hinge in utHinges)
         {
-            MjGeom[] geoms = FindObjectsOfType<MjGeom>();
-            foreach (var geom in geoms)
-            {
-                Transform geomTransform = geom.transform;
-                sensor.AddObservation(geomTransform.rotation);
-            }
-            
-            sensor.AddObservation(ts.transform.position);
-            sensor.AddObservation(ts.transform.rotation);
-
-            UTData data = MjScene.Instance.getUTData();
-            foreach (var hinge in utHinges)
-            {
-                sensor.AddObservation(data.getJointVel(hinge));
-            }
-            
+            sensor.AddObservation(data.getJointVel(hinge));
         }
     }
 
@@ -189,24 +155,6 @@ public class JibotAgent : UTAgent
 
         base.OnActionReceived(actions);
         actionNum++;
-        
-        // Action
-        if (UTrainWindow.IsPhysX)
-        {
-            var continuousActions = actions.ContinuousActions;
-
-            /*
-            float factor = 15000f;
-            int i = 0;
-            rb1.AddTorque(new Vector3(Mathf.Clamp(continuousActions[0], -1f, 1f), 0, 0) * factor);
-            rb2.AddTorque(new Vector3(0, Mathf.Clamp(continuousActions[1], -1f, 1f), 0) * factor);
-            rb3.AddTorque(new Vector3(0, Mathf.Clamp(continuousActions[2], -1f, 1f), 0) * factor);
-            rb4.AddTorque(new Vector3(0, Mathf.Clamp(continuousActions[3], -1f, 1f), 0) * factor);
-            rb5.AddTorque(new Vector3(Mathf.Clamp(continuousActions[4], -1f, 1f), 0) * factor);
-            rb6.AddTorque(new Vector3(0, 0, Mathf.Clamp(continuousActions[5], -1f, 1f)) * factor);
-            rb7.AddTorque(new Vector3(0, 0, Mathf.Clamp(-continuousActions[5], -1f, 1f)) * factor);
-            */
-        }
         
         // Reward
         float dis = Vector3.Distance(target.position, effector.position);
@@ -238,8 +186,8 @@ public class JibotAgent : UTAgent
         
         if (episodeTimer >= maxEpisodeTime)
         {
-            //Debug.Log("End Episode: Out of Time");
-            //EndEpisode();
+            Debug.Log("End Episode: Out of Time");
+            EndEpisode();
         }
         
 

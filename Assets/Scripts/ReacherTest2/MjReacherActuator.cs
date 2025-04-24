@@ -33,7 +33,7 @@ public class MjReacherActuator : ActuatorComponent {
 
         private MjActuator wrappedActuator;
 
-        public string Name => wrappedActuator.name;
+            public string Name => wrappedActuator.name;
 
 
         // Used when no model is connected to the BrainParameters component.

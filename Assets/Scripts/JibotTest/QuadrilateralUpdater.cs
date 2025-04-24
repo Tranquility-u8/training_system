@@ -26,7 +26,7 @@ public class QuadrilateralUpdater : MonoBehaviour
         }
 
         Vector3 adDir = adVector.normalized;
-        float theta = grabberController.Value;
+        float theta = grabberController.Angle;
         if(IsMirror)
             theta = -theta;
         Quaternion rot = Quaternion.Euler(theta, 0, 0);
