@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class GrabberController : MonoBehaviour
 {
-    [SerializeField] [Range(45f, 120f)] private float angle = 0;
+    [SerializeField] 
+    [Range(45f, 120f)] 
+    private float angle = 0;
     
     public float Angle
     {
